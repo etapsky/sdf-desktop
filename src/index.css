@@ -138,11 +138,21 @@ button:disabled,
   color: var(--color-fg);
 }
 
-/* ─── Tauri drag region ────────────────────────────────────────────────── */
-[data-tauri-drag-region]         { -webkit-app-region: drag; }
+/* ─── Tauri drag region ──────────────────────────────────────────────────
+   Drag is not inherited by flex children in WebKit; mark each strip + use
+   startDragging() in Header for reliable window moves (see Header.tsx). */
+[data-tauri-drag-region] {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
 [data-tauri-drag-region] button,
 [data-tauri-drag-region] a,
-[data-tauri-drag-region] input   { -webkit-app-region: no-drag; }
+[data-tauri-drag-region] input,
+[data-tauri-drag-region] textarea,
+[data-tauri-drag-region] select {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
 
 /* Theme: no global transition — animating every node with [data-theme] * felt slow;
    interactive hovers keep their own transition-colors from components. */

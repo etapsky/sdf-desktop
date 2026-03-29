@@ -1,4 +1,6 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
+import { useEffect, useRef } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Search, Sidebar, SidebarOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useThemeStore } from "@/stores/themeStore";
@@ -19,9 +21,30 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
   const { t } = useTranslation();
   const { resolved } = useThemeStore();
   const logoFilter = resolved === "dark" ? "brightness(0) invert(1)" : "none";
+  const headerRef = useRef<HTMLElement>(null);
+
+  /** WebKit often ignores drag on nested flex children; API drag matches native apps. */
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return;
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest("button, a, input, textarea, select, [contenteditable=true]")) return;
+      void getCurrentWindow().startDragging().catch(() => {
+        /* dev in browser without Tauri */
+      });
+    };
+
+    el.addEventListener("mousedown", onMouseDown);
+    return () => el.removeEventListener("mousedown", onMouseDown);
+  }, []);
 
   return (
     <header
+      ref={headerRef}
       data-tauri-drag-region
       style={{
         height: 44,
@@ -61,7 +84,10 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
         )}
       </button>
 
-      <div className="flex min-w-0 flex-1 items-center justify-center px-2">
+      <div
+        data-tauri-drag-region
+        className="flex min-w-0 flex-1 items-center justify-center px-2"
+      >
         <button
           type="button"
           onClick={onOpenCommandPalette}
@@ -76,20 +102,21 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
         </button>
       </div>
 
-      <img
-        src={etapskyLogo}
-        alt="Etapsky"
-        style={{
-          height: 20,
-          width: "auto",
-          maxWidth: 200,
-          opacity: 0.88,
-          filter: logoFilter,
-          pointerEvents: "none",
-          userSelect: "none",
-          flexShrink: 0,
-        }}
-      />
+      <div data-tauri-drag-region className="flex shrink-0 items-center">
+        <img
+          src={etapskyLogo}
+          alt="Etapsky"
+          style={{
+            height: 20,
+            width: "auto",
+            maxWidth: 200,
+            opacity: 0.88,
+            filter: logoFilter,
+            pointerEvents: "none",
+            userSelect: "none",
+          }}
+        />
+      </div>
     </header>
   );
 }

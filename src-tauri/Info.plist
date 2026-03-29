@@ -4,6 +4,30 @@
 <dict>
   <!-- Merged into the app bundle Info.plist. SDFDocument.icns is bundled via bundle.resources. -->
   <!-- Aligns with sdf/tooling/os-integration and Homebrew SDFDocument.icns usage. -->
+  <!-- CFBundleTypeIconFile is required for Finder to display the custom document icon.
+       Tauri v2 does not support 'icon' in fileAssociations, so we declare it here.
+       This entry is merged with Tauri's auto-generated CFBundleDocumentTypes. -->
+  <key>CFBundleDocumentTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>SDF Document</string>
+      <key>CFBundleTypeExtensions</key>
+      <array>
+        <string>sdf</string>
+      </array>
+      <key>CFBundleTypeIconFile</key>
+      <string>SDFDocument</string>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>LSHandlerRank</key>
+      <string>Owner</string>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>com.etapsky.sdf</string>
+      </array>
+    </dict>
+  </array>
   <key>UTExportedTypeDeclarations</key>
   <array>
     <dict>

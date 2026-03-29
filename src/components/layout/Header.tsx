@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Search, Sidebar, SidebarOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -22,6 +22,37 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
   const { resolved } = useThemeStore();
   const logoFilter = resolved === "dark" ? "brightness(0) invert(1)" : "none";
   const headerRef = useRef<HTMLElement>(null);
+  /** macOS: traffic lights disappear in native fullscreen — collapse reserved strip. */
+  const [windowFullscreen, setWindowFullscreen] = useState(false);
+
+  useEffect(() => {
+    const win = getCurrentWindow();
+    let cancelled = false;
+
+    const syncFullscreen = async () => {
+      try {
+        const fs = await win.isFullscreen();
+        if (!cancelled) setWindowFullscreen(fs);
+      } catch {
+        if (!cancelled) setWindowFullscreen(false);
+      }
+    };
+
+    void syncFullscreen();
+
+    const unlistenP = Promise.all([
+      win.onResized(() => void syncFullscreen()),
+      win.onFocusChanged(() => void syncFullscreen()),
+    ]).then(([u1, u2]) => () => {
+      u1();
+      u2();
+    });
+
+    return () => {
+      cancelled = true;
+      void unlistenP.then((unsub) => unsub());
+    };
+  }, []);
 
   /** WebKit often ignores drag on nested flex children; API drag matches native apps. */
   useEffect(() => {
@@ -54,10 +85,22 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
         borderBottom: "1px solid var(--color-border-subtle)",
         background: "var(--color-sidebar)",
         gap: 8,
-        padding: "0 12px 0 0",
+        paddingTop: 0,
+        paddingRight: 12,
+        paddingBottom: 0,
+        paddingLeft: windowFullscreen ? "max(10px, env(safe-area-inset-left, 0px))" : 0,
       }}
     >
-      <div data-tauri-drag-region style={{ width: 72, flexShrink: 0 }} />
+      <div
+        data-tauri-drag-region
+        style={{
+          width: windowFullscreen ? 0 : 72,
+          minWidth: windowFullscreen ? 0 : undefined,
+          flexShrink: 0,
+          transition: "width 0.18s ease",
+        }}
+        aria-hidden
+      />
 
       <button
         type="button"

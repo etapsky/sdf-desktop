@@ -10,6 +10,12 @@ import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
 /** Must match `trafficLightPosition` / overlay titlebar inset in tauri.conf (macOS). */
 const MACOS_TRAFFIC_STRIP_PX = 72;
 
+/**
+ * Fullscreen: traffic strip is 0; header flex `gap` (8) + half toggle (12) = 20px center.
+ * Sidebar nav icons (collapsed strip) are centered at 26px from the window left — match that.
+ */
+const MACOS_FULLSCREEN_TOGGLE_NUDGE_PX = 6;
+
 interface HeaderProps {
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
@@ -91,6 +97,9 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
     return () => el.removeEventListener("mousedown", onMouseDown);
   }, []);
 
+  const fullscreenToggleNudge =
+    isMacOs() && trafficStripPx === 0 ? MACOS_FULLSCREEN_TOGGLE_NUDGE_PX : 0;
+
   return (
     <header
       ref={headerRef}
@@ -135,6 +144,7 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
           color: "var(--color-muted-fg)",
           flexShrink: 0,
           padding: 0,
+          marginLeft: fullscreenToggleNudge,
         }}
       >
         {sidebarOpen ? (

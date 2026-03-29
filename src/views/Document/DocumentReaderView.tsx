@@ -125,6 +125,13 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
     [endDrag]
   );
 
+  const onResizeDoubleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const w = clampRightPanelWidthPx(defaultRightPanelWidthPx());
+    widthRef.current = w;
+    setRightPanelWidth(w);
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     setState({ status: "loading" });
@@ -237,6 +244,7 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
             onPointerMove={onResizePointerMove}
             onPointerUp={onResizePointerUp}
             onPointerCancel={onResizePointerUp}
+            onDoubleClick={onResizeDoubleClick}
             onLostPointerCapture={(e) => {
               if (dragSessionRef.current?.pointerId === e.pointerId) {
                 endDrag(e.currentTarget, e.pointerId);

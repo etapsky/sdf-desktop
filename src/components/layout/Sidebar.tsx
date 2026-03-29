@@ -81,17 +81,21 @@ function ThemeToggle({ collapsed }: { collapsed: boolean }) {
   const nextLabel = t(`theme.${nextMode}`);
 
   return (
-    <div className={cn("px-2.5", collapsed ? "py-0" : "py-2 flex flex-col gap-2")}>
+    <div
+      className={cn(
+        collapsed ? "flex justify-center px-1.5 py-1" : "flex flex-col gap-2 px-2.5 py-2"
+      )}
+    >
       {!collapsed && <span className="text-xs text-[--color-muted-fg]">{t("theme.appearance")}</span>}
       <button
         type="button"
         onClick={() => cycle()}
         title={t("theme.tooltip", { current: label, next: nextLabel })}
         className={cn(
-          "flex w-full cursor-pointer items-center rounded-lg border border-[--color-border] bg-[--color-surface-elevated]",
-          "text-[--color-fg] transition-colors duration-150 active:scale-[0.98]",
-          "hover:bg-[--color-sidebar-hover]",
-          collapsed ? "h-9 justify-center px-0" : "justify-center gap-2 px-3 py-2.5"
+          "flex cursor-pointer items-center text-[--color-fg] transition-colors duration-150 active:scale-[0.97]",
+          collapsed
+            ? "mx-auto size-9 shrink-0 justify-center rounded-md border border-[--color-border-subtle] bg-[--color-surface-elevated]/80 text-[--color-muted-fg] hover:border-[--color-border] hover:bg-[--color-sidebar-hover] hover:text-[--color-fg]"
+            : "w-full justify-center gap-2 rounded-lg border border-[--color-border] bg-[--color-surface-elevated] px-3 py-2.5 hover:bg-[--color-sidebar-hover]"
         )}
       >
         <span key={mode} className="inline-flex shrink-0 theme-toggle-icon">

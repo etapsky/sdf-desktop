@@ -2,12 +2,22 @@
 mod commands;
 mod error;
 
+#[cfg(target_os = "macos")]
+mod macos_fullscreen;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .setup(|app| {
+            #[cfg(target_os = "macos")]
+            if let Err(e) = macos_fullscreen::attach(app.handle()) {
+                eprintln!("[macos_fullscreen] failed to attach observers: {e}");
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             commands::fs::read_sdf_file,
             commands::fs::get_file_metadata,

@@ -1,10 +1,14 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useEffect, useRef, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { listen } from "@tauri-apps/api/event";
 import { Search, Sidebar, SidebarOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useThemeStore } from "@/stores/themeStore";
 import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
+
+/** Must match `trafficLightPosition` / overlay titlebar inset in tauri.conf (macOS). */
+const MACOS_TRAFFIC_STRIP_PX = 72;
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -17,40 +21,54 @@ function keyboardShortcutLabel(): string {
   return /Mac|iPhone|iPod|iPad/i.test(navigator.userAgent) ? "⌘K" : "Ctrl+K";
 }
 
+function isMacOs(): boolean {
+  return typeof navigator !== "undefined" && /Mac/i.test(navigator.userAgent);
+}
+
 export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: HeaderProps) {
   const { t } = useTranslation();
   const { resolved } = useThemeStore();
   const logoFilter = resolved === "dark" ? "brightness(0) invert(1)" : "none";
   const headerRef = useRef<HTMLElement>(null);
-  /** macOS: traffic lights disappear in native fullscreen — collapse reserved strip. */
-  const [windowFullscreen, setWindowFullscreen] = useState(false);
 
+  const [trafficStripPx, setTrafficStripPx] = useState(() => (isMacOs() ? MACOS_TRAFFIC_STRIP_PX : 0));
+
+  /**
+   * macOS: `resize` / `isFullscreen()` often fire after the fullscreen animation (tauri#7162).
+   * Native `NSWindowWillExitFullScreen` / `WillEnter` events (emitted from Rust) align the
+   * spacer with traffic lights. Non-mac: no overlay controls strip.
+   */
   useEffect(() => {
-    const win = getCurrentWindow();
+    if (!isMacOs()) {
+      setTrafficStripPx(0);
+      return;
+    }
+
     let cancelled = false;
+    let unlistenNative: (() => void) | undefined;
 
-    const syncFullscreen = async () => {
+    void (async () => {
       try {
-        const fs = await win.isFullscreen();
-        if (!cancelled) setWindowFullscreen(fs);
+        const fs = await getCurrentWindow().isFullscreen();
+        if (!cancelled) setTrafficStripPx(fs ? 0 : MACOS_TRAFFIC_STRIP_PX);
       } catch {
-        if (!cancelled) setWindowFullscreen(false);
+        if (!cancelled) setTrafficStripPx(MACOS_TRAFFIC_STRIP_PX);
       }
-    };
 
-    void syncFullscreen();
-
-    const unlistenP = Promise.all([
-      win.onResized(() => void syncFullscreen()),
-      win.onFocusChanged(() => void syncFullscreen()),
-    ]).then(([u1, u2]) => () => {
-      u1();
-      u2();
-    });
+      try {
+        unlistenNative = await listen<{ phase: string }>("macos-fullscreen", (e) => {
+          const p = e.payload.phase;
+          if (p === "will-exit" || p === "did-exit") setTrafficStripPx(MACOS_TRAFFIC_STRIP_PX);
+          else if (p === "will-enter" || p === "did-enter") setTrafficStripPx(0);
+        });
+      } catch {
+        /* dev in browser without IPC */
+      }
+    })();
 
     return () => {
       cancelled = true;
-      void unlistenP.then((unsub) => unsub());
+      unlistenNative?.();
     };
   }, []);
 
@@ -88,16 +106,15 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
         paddingTop: 0,
         paddingRight: 12,
         paddingBottom: 0,
-        paddingLeft: windowFullscreen ? "max(10px, env(safe-area-inset-left, 0px))" : 0,
+        paddingLeft: 0,
       }}
     >
       <div
         data-tauri-drag-region
         style={{
-          width: windowFullscreen ? 0 : 72,
-          minWidth: windowFullscreen ? 0 : undefined,
+          width: trafficStripPx,
+          minWidth: trafficStripPx || undefined,
           flexShrink: 0,
-          transition: "width 0.18s ease",
         }}
         aria-hidden
       />

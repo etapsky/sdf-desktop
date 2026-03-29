@@ -111,6 +111,8 @@ interface SidebarProps {
 
 export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigate }: SidebarProps) {
   const { t } = useTranslation();
+  const { resolved } = useThemeStore();
+  const avatarImgFilter = resolved === "dark" ? "brightness(0) invert(1)" : "none";
   const nav = (view: string) => () => onNavigate?.(view);
 
   return (
@@ -262,7 +264,12 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
             <img
               src={fennecFox}
               alt="avatar"
-              style={{ width: 22, height: 22, objectFit: "contain" }}
+              style={{
+                width: 22,
+                height: 22,
+                objectFit: "contain",
+                filter: avatarImgFilter,
+              }}
             />
           </div>
           {!collapsed && (

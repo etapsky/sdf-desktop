@@ -1,11 +1,22 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useTranslation } from "react-i18next";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Settings } from "lucide-react";
 import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
 import { useLocaleStore, APP_LOCALES, type AppLocale } from "@/stores/localeStore";
 import { localeToTranslationKey } from "@/i18n/localeLabel";
 import { cn } from "@/lib/utils";
+
+const DOCS_URL = "https://docs.etapsky.com";
+
+async function openDocsInBrowser() {
+  try {
+    await openUrl(DOCS_URL);
+  } catch {
+    window.open(DOCS_URL, "_blank", "noopener,noreferrer");
+  }
+}
 
 function SettingRow({
   label,
@@ -114,6 +125,7 @@ export function SettingsView() {
             <SettingRow label={t("settings.documentation")}>
               <button
                 type="button"
+                onClick={() => void openDocsInBrowser()}
                 className="flex items-center gap-1 text-xs text-[--color-primary] hover:underline cursor-pointer"
               >
                 docs.etapsky.com

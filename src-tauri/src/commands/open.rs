@@ -14,8 +14,15 @@ pub fn sdf_paths_from_argv(args: &[String]) -> Vec<String> {
         .collect()
 }
 
-/// First-process launch: argv still available (e.g. user opened `file.sdf` from Finder).
+/// Returns pending `.sdf` paths collected at launch (argv or macOS Finder open)
+/// and drains them so they are delivered only once.
+///
+/// The frontend calls this once on startup. Subsequent opens while the app is
+/// already running are delivered via the `sdf-open-paths` event.
 #[tauri::command]
-pub fn get_launch_sdf_paths() -> Vec<String> {
-    sdf_paths_from_argv(&std::env::args().collect::<Vec<_>>())
+pub fn get_launch_sdf_paths(state: tauri::State<'_, crate::AppState>) -> Vec<String> {
+    let mut paths = state.pending_sdf_paths.lock().unwrap();
+    let result = paths.clone();
+    paths.clear();
+    result
 }

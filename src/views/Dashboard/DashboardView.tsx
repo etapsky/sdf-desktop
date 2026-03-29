@@ -113,7 +113,7 @@ export function DashboardView({ onOpenSdfFile, onNewDocument }: DashboardViewPro
     try {
       const selected = await open({
         multiple: false,
-        filters: [{ name: "SDF", extensions: ["sdf"] }],
+        filters: [{ name: "SDF / PDF", extensions: ["sdf", "pdf"] }],
       });
       if (typeof selected === "string" && selected) onOpenSdfFile(selected);
     } catch {

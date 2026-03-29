@@ -67,7 +67,13 @@
     "resizePanels": "Drag to resize panels",
     "downloadPdf": "Download PDF",
     "downloadPdfSaving": "Saving…",
-    "downloadPdfError": "Could not save PDF"
+    "downloadPdfError": "Could not save PDF",
+    "downloadSdf": "Download SDF",
+    "downloadSdfSaving": "Wrapping…",
+    "plainPdfTitle": "PLAIN PDF — NO STRUCTURED DATA",
+    "plainPdfDesc": "{{name}} is a plain PDF file. It does not contain a structured data layer (data.json, schema.json, meta.json). The visual layer is displayed on the left.",
+    "plainPdfWrapTitle": "TO ADD STRUCTURED DATA",
+    "plainPdfNoSchema": "No schema defined."
   },
   "dashboard": {
     "bannerAwaiting": "You have <highlight>{{count}} documents</highlight> awaiting action.",

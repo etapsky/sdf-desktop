@@ -67,7 +67,13 @@
     "resizePanels": "Ziehen, um die Bereiche zu vergrößern oder zu verkleinern",
     "downloadPdf": "PDF herunterladen",
     "downloadPdfSaving": "Wird gespeichert…",
-    "downloadPdfError": "PDF konnte nicht gespeichert werden"
+    "downloadPdfError": "PDF konnte nicht gespeichert werden",
+    "downloadSdf": "SDF herunterladen",
+    "downloadSdfSaving": "Wird verpackt…",
+    "plainPdfTitle": "PLAIN PDF — KEINE STRUKTURIERTEN DATEN",
+    "plainPdfDesc": "{{name}} ist eine einfache PDF-Datei. Sie enthält keine strukturierte Datenschicht (data.json, schema.json, meta.json). Die visuelle Ebene wird links angezeigt.",
+    "plainPdfWrapTitle": "STRUKTURIERTE DATEN HINZUFÜGEN",
+    "plainPdfNoSchema": "Kein Schema definiert."
   },
   "dashboard": {
     "bannerAwaiting": "Sie haben <highlight>{{count}} Dokumente</highlight>, die noch bearbeitet werden müssen.",

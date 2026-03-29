@@ -67,7 +67,13 @@
     "resizePanels": "Glisser pour redimensionner les panneaux",
     "downloadPdf": "Télécharger le PDF",
     "downloadPdfSaving": "Enregistrement…",
-    "downloadPdfError": "Impossible d'enregistrer le PDF"
+    "downloadPdfError": "Impossible d'enregistrer le PDF",
+    "downloadSdf": "Télécharger le SDF",
+    "downloadSdfSaving": "Encapsulation…",
+    "plainPdfTitle": "PDF SIMPLE — AUCUNE DONNÉE STRUCTURÉE",
+    "plainPdfDesc": "{{name}} est un fichier PDF simple. Il ne contient pas de couche de données structurées (data.json, schema.json, meta.json). La couche visuelle est affichée à gauche.",
+    "plainPdfWrapTitle": "AJOUTER DES DONNÉES STRUCTURÉES",
+    "plainPdfNoSchema": "Aucun schéma défini."
   },
   "dashboard": {
     "bannerAwaiting": "Il vous reste <highlight>{{count}} documents</highlight> à traiter.",

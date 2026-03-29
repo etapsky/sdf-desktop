@@ -4,8 +4,16 @@ import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { useTranslation } from "react-i18next";
-import { parseSDF, SDFError, type SDFParseResult } from "@etapsky/sdf-kit";
-import { ArrowLeft, Download, FileText, FolderOpen, GripVertical, Loader2 } from "lucide-react";
+import { packContainer, parseSDF, SDFError, SDF_VERSION, type SDFParseResult } from "@etapsky/sdf-kit";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Download,
+  FileText,
+  FolderOpen,
+  GripVertical,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTree } from "@/components/reader/DataTree";
 import { MetaCard } from "@/components/reader/MetaCard";
@@ -15,9 +23,18 @@ import { ReaderRawPanel } from "@/components/reader/ReaderRawPanel";
 type LoadState =
   | { status: "loading" }
   | { status: "error"; message: string; code?: string }
-  | { status: "ready"; result: SDFParseResult; fileLabel: string };
+  | { status: "ready"; kind: "sdf"; result: SDFParseResult; fileLabel: string }
+  | { status: "ready"; kind: "pdf"; fileLabel: string };
 
-type ReaderPanel = "data" | "schema" | "meta";
+type ReaderPanel = "data" | "info" | "schema" | "meta";
+
+const PLAIN_PDF_META = {
+  sdf_version: "—",
+  document_id: "—",
+  issuer: "—",
+  created_at: "—",
+  document_type: "plain_pdf",
+} as const;
 
 /** Same default as previous fixed layout: min(448px, 45vw). */
 function defaultRightPanelWidthPx(): number {
@@ -37,6 +54,10 @@ function fileNameFromPath(path: string): string {
   return parts[parts.length - 1] || path;
 }
 
+function isPlainPdf(path: string): boolean {
+  return /\.pdf$/i.test(path);
+}
+
 interface DocumentReaderViewProps {
   path: string;
   onClose: () => void;
@@ -52,6 +73,8 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
   const [rightPanelWidth, setRightPanelWidth] = useState(defaultRightPanelWidthPx);
   const [resizing, setResizing] = useState(false);
   const blobRef = useRef<string | null>(null);
+  /** Raw bytes kept for plain-PDF downloads (SDF uses result.pdfBytes). */
+  const rawPdfBytesRef = useRef<Uint8Array | null>(null);
   /** Synced with latest width — always read this on pointerdown (avoids stale closure). */
   const widthRef = useRef(rightPanelWidth);
   const dragSessionRef = useRef<{ pointerId: number; startClientX: number; startWidth: number } | null>(
@@ -129,19 +152,46 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
     [endDrag]
   );
 
-  const handleDownloadPdf = useCallback(async () => {
+  const handleDownload = useCallback(async () => {
     if (state.status !== "ready" || pdfSaving) return;
-    const defaultName = state.fileLabel.replace(/\.sdf$/i, "") + ".pdf";
     try {
       setPdfSaving(true);
-      const savePath = await save({
-        defaultPath: defaultName,
-        filters: [{ name: "PDF", extensions: ["pdf"] }],
-      });
-      if (!savePath) return;
-      await writeFile(savePath, state.result.pdfBytes);
+      if (state.kind === "sdf") {
+        // Export embedded PDF from SDF
+        const defaultName = state.fileLabel.replace(/\.sdf$/i, "") + ".pdf";
+        const savePath = await save({
+          defaultPath: defaultName,
+          filters: [{ name: "PDF", extensions: ["pdf"] }],
+        });
+        if (!savePath) return;
+        await writeFile(savePath, state.result.pdfBytes);
+      } else {
+        // Wrap plain PDF into a minimal SDF container
+        const rawBytes = rawPdfBytesRef.current;
+        if (!rawBytes) return;
+        const defaultName = state.fileLabel.replace(/\.pdf$/i, "") + ".sdf";
+        const savePath = await save({
+          defaultPath: defaultName,
+          filters: [{ name: "SDF", extensions: ["sdf"] }],
+        });
+        if (!savePath) return;
+        const meta = {
+          sdf_version: SDF_VERSION,
+          document_id: crypto.randomUUID(),
+          issuer: "",
+          created_at: new Date().toISOString(),
+          document_type: "plain_pdf",
+        };
+        const sdfBytes = await packContainer({
+          visualPdf: rawBytes,
+          dataJson: "{}",
+          schemaJson: "{}",
+          metaJson: JSON.stringify(meta, null, 2),
+        });
+        await writeFile(savePath, sdfBytes);
+      }
     } catch {
-      // user dismissed the dialog or write failed — no-op
+      // user dismissed or write failed — no-op
     } finally {
       setPdfSaving(false);
     }
@@ -151,7 +201,7 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
     try {
       const selected = await open({
         multiple: false,
-        filters: [{ name: "SDF", extensions: ["sdf"] }],
+        filters: [{ name: "SDF / PDF", extensions: ["sdf", "pdf"] }],
       });
       if (typeof selected === "string" && selected) onOpenFile?.(selected);
     } catch {
@@ -170,6 +220,7 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
     let cancelled = false;
     setState({ status: "loading" });
     setPdfUrl(null);
+    rawPdfBytesRef.current = null;
     if (blobRef.current) {
       URL.revokeObjectURL(blobRef.current);
       blobRef.current = null;
@@ -179,20 +230,27 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
       try {
         const bytes = await invoke<number[]>("read_sdf_file", { path });
         const u8 = new Uint8Array(bytes);
-        const result = (await parseSDF(u8)) as SDFParseResult;
-        if (cancelled) return;
-        const u = URL.createObjectURL(new Blob([result.pdfBytes], { type: "application/pdf" }));
-        if (cancelled) {
-          URL.revokeObjectURL(u);
-          return;
+
+        if (isPlainPdf(path)) {
+          // Plain PDF — display as-is, no parsing
+          rawPdfBytesRef.current = u8;
+          const u = URL.createObjectURL(new Blob([u8.slice(0)], { type: "application/pdf" }));
+          if (cancelled) { URL.revokeObjectURL(u); return; }
+          blobRef.current = u;
+          setPdfUrl(u);
+          setState({ status: "ready", kind: "pdf", fileLabel: fileNameFromPath(path) });
+          setPanel("info");
+        } else {
+          // SDF — parse to extract embedded PDF + structured data
+          const result = (await parseSDF(u8)) as SDFParseResult;
+          if (cancelled) return;
+          const u = URL.createObjectURL(new Blob([result.pdfBytes], { type: "application/pdf" }));
+          if (cancelled) { URL.revokeObjectURL(u); return; }
+          blobRef.current = u;
+          setPdfUrl(u);
+          setState({ status: "ready", kind: "sdf", result, fileLabel: fileNameFromPath(path) });
+          setPanel("data");
         }
-        blobRef.current = u;
-        setPdfUrl(u);
-        setState({
-          status: "ready",
-          result,
-          fileLabel: fileNameFromPath(path),
-        });
       } catch (e) {
         if (cancelled) return;
         if (e instanceof SDFError) {
@@ -205,6 +263,7 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
 
     return () => {
       cancelled = true;
+      rawPdfBytesRef.current = null;
       if (blobRef.current) {
         URL.revokeObjectURL(blobRef.current);
         blobRef.current = null;
@@ -212,11 +271,25 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
     };
   }, [path]);
 
-  const panelTabs: { id: ReaderPanel; label: string }[] = [
-    { id: "data", label: "data.json" },
-    { id: "schema", label: "schema.json" },
-    { id: "meta", label: "meta.json" },
-  ];
+  const panelTabs: { id: ReaderPanel; label: string }[] =
+    state.status === "ready" && state.kind === "pdf"
+      ? [
+          { id: "info", label: "info" },
+          { id: "schema", label: "schema.json" },
+          { id: "meta", label: "meta.json" },
+        ]
+      : [
+          { id: "data", label: "data.json" },
+          { id: "schema", label: "schema.json" },
+          { id: "meta", label: "meta.json" },
+        ];
+
+  const headerBadge =
+    state.status === "ready"
+      ? state.kind === "sdf"
+        ? (state.result.meta.document_type ?? "—")
+        : "plain_pdf"
+      : null;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-[--color-bg]">
@@ -229,9 +302,11 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <FileText className="h-4 w-4 shrink-0 text-[--color-muted]" />
             <span className="truncate text-sm font-medium text-[--color-fg]">{state.fileLabel}</span>
-            <span className="shrink-0 rounded-md border border-[--color-border-subtle] bg-[--color-surface-elevated] px-2 py-0.5 text-[10px] font-medium text-[--color-muted]">
-              {state.result.meta.document_type ?? "—"}
-            </span>
+            {headerBadge && (
+              <span className="shrink-0 rounded-md border border-[--color-border-subtle] bg-[--color-surface-elevated] px-2 py-0.5 text-[10px] font-medium text-[--color-muted]">
+                {headerBadge}
+              </span>
+            )}
             <div className="ml-auto flex shrink-0 items-center gap-2">
               <Button
                 type="button"
@@ -248,7 +323,7 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
                 variant="secondary"
                 size="sm"
                 disabled={pdfSaving}
-                onClick={handleDownloadPdf}
+                onClick={handleDownload}
                 className="gap-1.5"
               >
                 {pdfSaving ? (
@@ -256,7 +331,11 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
                 ) : (
                   <Download className="h-3.5 w-3.5" />
                 )}
-                {pdfSaving ? t("document.downloadPdfSaving") : t("document.downloadPdf")}
+                {pdfSaving
+                  ? t("document.downloadSdfSaving")
+                  : state.kind === "pdf"
+                    ? t("document.downloadSdf")
+                    : t("document.downloadPdf")}
               </Button>
             </div>
           </div>
@@ -362,24 +441,147 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-4 [scrollbar-gutter:stable]">
               <div className="flex flex-col gap-3">
-                {panel === "data" && (
+
+                {/* ── SDF panels ── */}
+                {panel === "data" && state.kind === "sdf" && (
                   <>
                     <MetaCard meta={state.result.meta} />
                     <DataTree data={state.result.data} />
                   </>
                 )}
-                {panel === "schema" && <ReaderSchemaPanel schema={state.result.schema} />}
-                {panel === "meta" && (
+                {panel === "schema" && state.kind === "sdf" && (
+                  <ReaderSchemaPanel schema={state.result.schema} />
+                )}
+                {panel === "meta" && state.kind === "sdf" && (
                   <ReaderRawPanel
                     data={state.result.meta as unknown as Record<string, unknown>}
                     label="meta.json"
                   />
                 )}
+
+                {/* ── Plain PDF panels ── */}
+                {panel === "info" && state.kind === "pdf" && (
+                  <PlainPdfInfoPanel fileLabel={state.fileLabel} t={t} />
+                )}
+                {panel === "schema" && state.kind === "pdf" && (
+                  <p
+                    style={{
+                      fontFamily: "var(--reader-mono)",
+                      fontSize: 12,
+                      color: "var(--reader-text3)",
+                      margin: 0,
+                    }}
+                  >
+                    {t("document.plainPdfNoSchema")}
+                  </p>
+                )}
+                {panel === "meta" && state.kind === "pdf" && (
+                  <ReaderRawPanel
+                    data={PLAIN_PDF_META as unknown as Record<string, unknown>}
+                    label="meta.json"
+                  />
+                )}
+
               </div>
             </div>
           </aside>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Plain PDF info panel ────────────────────────────────────────────────────
+
+interface PlainPdfInfoPanelProps {
+  fileLabel: string;
+  t: (key: string, opts?: Record<string, string>) => string;
+}
+
+function PlainPdfInfoPanel({ fileLabel, t }: PlainPdfInfoPanelProps) {
+  const outName = fileLabel.replace(/\.pdf$/i, ".sdf");
+  const wrapCmd = `sdf wrap ${fileLabel} \\\n  --issuer "Your Organization" \\\n  --out ${outName}`;
+
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Warning banner */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 8,
+          padding: "10px 12px",
+          borderRadius: 6,
+          background: "var(--color-amber-muted)",
+          border: "1px solid color-mix(in oklch, var(--color-amber) 30%, transparent)",
+        }}
+      >
+        <AlertTriangle
+          style={{ width: 14, height: 14, color: "var(--color-amber)", flexShrink: 0, marginTop: 1 }}
+        />
+        <span
+          style={{
+            fontFamily: "var(--reader-mono)",
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--color-amber)",
+            letterSpacing: "0.03em",
+          }}
+        >
+          {t("document.plainPdfTitle")}
+        </span>
+      </div>
+
+      {/* Description */}
+      <p
+        style={{
+          margin: 0,
+          fontSize: 12,
+          lineHeight: 1.6,
+          color: "var(--reader-text2)",
+        }}
+      >
+        {t("document.plainPdfDesc", { name: fileLabel })}
+      </p>
+
+      {/* sdf wrap command */}
+      <div
+        style={{
+          borderRadius: 6,
+          border: "1px solid var(--reader-border)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            padding: "6px 12px",
+            background: "var(--reader-bg2)",
+            borderBottom: "1px solid var(--reader-border)",
+            fontFamily: "var(--reader-mono)",
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: "0.06em",
+            color: "var(--reader-text3)",
+          }}
+        >
+          {t("document.plainPdfWrapTitle")}
+        </div>
+        <pre
+          style={{
+            margin: 0,
+            padding: "12px",
+            fontFamily: "var(--reader-mono)",
+            fontSize: 11,
+            lineHeight: 1.7,
+            color: "var(--reader-text)",
+            background: "var(--reader-bg3)",
+            overflowX: "auto",
+            whiteSpace: "pre",
+          }}
+        >
+          {wrapCmd}
+        </pre>
+      </div>
     </div>
   );
 }

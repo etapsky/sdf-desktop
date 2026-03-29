@@ -15,7 +15,20 @@
   },
   "header": {
     "hideSidebar": "Seitenleiste ausblenden",
-    "showSidebar": "Seitenleiste einblenden"
+    "showSidebar": "Seitenleiste einblenden",
+    "searchPlaceholder": "Befehle, Navigation, Dokumente durchsuchen…",
+    "searchShortcut": "Schnellsuche"
+  },
+  "commandPalette": {
+    "title": "Befehlspalette",
+    "inputPlaceholder": "Suchen oder springen zu…",
+    "empty": "Keine passenden Befehle oder Dokumente.",
+    "navigation": "Navigation",
+    "actions": "Aktionen",
+    "documents": "Zuletzt verwendet",
+    "openDocument": "Öffnen",
+    "toggleTheme": "Erscheinungsbild wechseln (System → Hell → Dunkel)",
+    "goSettings": "Einstellungen öffnen"
   },
   "theme": {
     "appearance": "Erscheinungsbild",

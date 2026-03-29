@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
+import { CommandPalette } from "@/components/command/CommandPalette";
 import { DashboardView } from "@/views/Dashboard/DashboardView";
 import { SettingsView } from "@/views/Settings/SettingsView";
 import { useThemeStore } from "@/stores/themeStore";
@@ -11,11 +12,23 @@ type View = "dashboard" | "documents" | "cloud" | "settings" | "new";
 export function AppShell() {
   const [activeView, setActiveView] = useState<View>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const { resolved } = useThemeStore();
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", resolved);
   }, [resolved]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const renderView = () => {
     switch (activeView) {
@@ -39,6 +52,13 @@ export function AppShell() {
       <Header
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((v) => !v)}
+        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+      />
+
+      <CommandPalette
+        open={commandPaletteOpen}
+        onOpenChange={setCommandPaletteOpen}
+        onNavigate={setActiveView}
       />
 
       {/* ── Body: sidebar + main ── */}

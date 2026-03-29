@@ -160,3 +160,87 @@ button:disabled,
 .theme-toggle-icon {
   animation: theme-toggle-icon-in 0.2s ease-out;
 }
+
+/* ─── Command palette (cmdk + Radix dialog) ─────────────────────────────── */
+.command-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: oklch(0% 0 0 / 0.42);
+  backdrop-filter: blur(3px);
+}
+
+.command-dialog-content {
+  position: fixed;
+  left: 50%;
+  top: min(120px, 14vh);
+  z-index: 9999;
+  width: min(560px, calc(100vw - 2rem));
+  transform: translateX(-50%);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  padding: 0;
+}
+
+.command-palette-input {
+  height: 44px;
+  border: none;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: 0 14px 0 40px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  background: transparent;
+  color: var(--color-fg);
+}
+
+.command-palette-list {
+  max-height: min(420px, 52vh);
+  overflow-y: auto;
+  padding: 6px 0 10px;
+}
+
+.command-palette-sep {
+  margin: 4px 10px;
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+
+[cmdk-root] {
+  border: none;
+}
+
+[cmdk-group-heading] {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  padding: 8px 12px 4px;
+}
+
+[cmdk-item] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 0 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--color-fg);
+}
+
+[cmdk-item][aria-selected="true"] {
+  background: var(--color-sidebar-hover);
+}
+
+[cmdk-empty] {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-muted);
+}

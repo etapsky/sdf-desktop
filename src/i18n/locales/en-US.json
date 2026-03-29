@@ -15,7 +15,20 @@
   },
   "header": {
     "hideSidebar": "Hide sidebar",
-    "showSidebar": "Show sidebar"
+    "showSidebar": "Show sidebar",
+    "searchPlaceholder": "Search commands, navigation, documents…",
+    "searchShortcut": "Quick find"
+  },
+  "commandPalette": {
+    "title": "Command palette",
+    "inputPlaceholder": "Search or jump to…",
+    "empty": "No matching commands or documents.",
+    "navigation": "Navigation",
+    "actions": "Actions",
+    "documents": "Recent documents",
+    "openDocument": "Open",
+    "toggleTheme": "Cycle appearance (System → Light → Dark)",
+    "goSettings": "Open settings"
   },
   "theme": {
     "appearance": "Appearance",

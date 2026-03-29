@@ -15,7 +15,20 @@
   },
   "header": {
     "hideSidebar": "Masquer la barre latérale",
-    "showSidebar": "Afficher la barre latérale"
+    "showSidebar": "Afficher la barre latérale",
+    "searchPlaceholder": "Rechercher commandes, navigation, documents…",
+    "searchShortcut": "Recherche rapide"
+  },
+  "commandPalette": {
+    "title": "Palette de commandes",
+    "inputPlaceholder": "Rechercher ou accéder à…",
+    "empty": "Aucune commande ou document correspondant.",
+    "navigation": "Navigation",
+    "actions": "Actions",
+    "documents": "Documents récents",
+    "openDocument": "Ouvrir",
+    "toggleTheme": "Changer l’apparence (Système → Clair → Sombre)",
+    "goSettings": "Ouvrir les paramètres"
   },
   "theme": {
     "appearance": "Apparence",

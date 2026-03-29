@@ -87,7 +87,7 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
   ];
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[--color-bg]">
+    <div className="flex min-h-0 flex-1 flex-col bg-[--color-bg]">
       <header className="flex shrink-0 items-center gap-3 border-b border-[--color-border-subtle] px-4 py-2.5">
         <Button type="button" variant="ghost" size="sm" className="gap-1.5 -ml-1" onClick={onClose}>
           <ArrowLeft className="h-4 w-4" />
@@ -125,15 +125,15 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
       )}
 
       {state.status === "ready" && pdfUrl && (
-        <div className="flex min-h-0 flex-1">
-          <div className="min-w-0 flex-1 border-r border-[--color-border-subtle] bg-[--color-surface]">
+        <div className="flex min-h-0 min-w-0 flex-1">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col border-r border-[--color-border-subtle] bg-[--color-surface]">
             <iframe
               title={t("document.pdfPreview")}
               src={pdfUrl}
-              className="h-full w-full border-0"
+              className="min-h-0 min-w-0 flex-1 border-0"
             />
           </div>
-          <aside className="sdf-reader flex w-[min(448px,45vw)] shrink-0 select-text flex-col border-l border-[--color-border-subtle] bg-[--color-bg]">
+          <aside className="sdf-reader flex min-h-0 w-[min(448px,45vw)] shrink-0 select-text flex-col overflow-hidden border-l border-[--color-border-subtle] bg-[--color-bg]">
             <div
               className="flex shrink-0 gap-0 px-4"
               style={{
@@ -165,7 +165,7 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
                 );
               })}
             </div>
-            <div className="min-h-0 flex-1 overflow-auto p-4">
+            <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-4 [scrollbar-gutter:stable]">
               <div className="flex flex-col gap-3">
                 {panel === "data" && (
                   <>

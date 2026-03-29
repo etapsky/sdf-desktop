@@ -12,6 +12,8 @@ export default defineConfig(async () => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // sdf-kit's buildSDF imports `randomUUID` from `crypto`; map to Web Crypto in the webview
+      crypto: path.resolve(__dirname, "./src/shims/node-crypto-shim.ts"),
     },
   },
   clearScreen: false,

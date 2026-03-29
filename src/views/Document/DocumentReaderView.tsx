@@ -1,9 +1,9 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useTranslation } from "react-i18next";
 import { parseSDF, SDFError, type SDFParseResult } from "@etapsky/sdf-kit";
-import { ArrowLeft, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, FileText, GripVertical, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTree } from "@/components/reader/DataTree";
 import { MetaCard } from "@/components/reader/MetaCard";
@@ -16,6 +16,19 @@ type LoadState =
   | { status: "ready"; result: SDFParseResult; fileLabel: string };
 
 type ReaderPanel = "data" | "schema" | "meta";
+
+/** Same default as previous fixed layout: min(448px, 45vw). */
+function defaultRightPanelWidthPx(): number {
+  if (typeof window === "undefined") return 448;
+  return Math.min(448, Math.round(window.innerWidth * 0.45));
+}
+
+function clampRightPanelWidthPx(w: number): number {
+  if (typeof window === "undefined") return w;
+  const min = 260;
+  const max = Math.min(960, Math.floor(window.innerWidth * 0.78));
+  return Math.max(min, Math.min(max, Math.round(w)));
+}
 
 function fileNameFromPath(path: string): string {
   const parts = path.split(/[/\\]/);
@@ -32,7 +45,85 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [panel, setPanel] = useState<ReaderPanel>("data");
+  const [rightPanelWidth, setRightPanelWidth] = useState(defaultRightPanelWidthPx);
+  const [resizing, setResizing] = useState(false);
   const blobRef = useRef<string | null>(null);
+  /** Synced with latest width — always read this on pointerdown (avoids stale closure). */
+  const widthRef = useRef(rightPanelWidth);
+  const dragSessionRef = useRef<{ pointerId: number; startClientX: number; startWidth: number } | null>(
+    null
+  );
+
+  useLayoutEffect(() => {
+    widthRef.current = rightPanelWidth;
+  }, [rightPanelWidth]);
+
+  useEffect(() => {
+    setRightPanelWidth(defaultRightPanelWidthPx());
+  }, [path]);
+
+  useEffect(() => {
+    const onResize = () => {
+      setRightPanelWidth((w) => clampRightPanelWidthPx(w));
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  /** While dragging: block text selection + show resize cursor (iframe uses pointer-events separately). */
+  useEffect(() => {
+    if (!resizing) return;
+    const prevUserSelect = document.body.style.userSelect;
+    const prevCursor = document.body.style.cursor;
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+    return () => {
+      document.body.style.userSelect = prevUserSelect;
+      document.body.style.cursor = prevCursor;
+    };
+  }, [resizing]);
+
+  const endDrag = useCallback((target: HTMLDivElement | null, pointerId: number) => {
+    const session = dragSessionRef.current;
+    if (!session || session.pointerId !== pointerId) return;
+    if (target?.hasPointerCapture?.(pointerId)) {
+      try {
+        target.releasePointerCapture(pointerId);
+      } catch {
+        /* already released */
+      }
+    }
+    dragSessionRef.current = null;
+    setResizing(false);
+  }, []);
+
+  const onResizePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    const el = e.currentTarget;
+    const w = widthRef.current;
+    dragSessionRef.current = { pointerId: e.pointerId, startClientX: e.clientX, startWidth: w };
+    el.setPointerCapture(e.pointerId);
+    setResizing(true);
+  }, []);
+
+  const onResizePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const session = dragSessionRef.current;
+    if (!session || e.pointerId !== session.pointerId) return;
+    const delta = e.clientX - session.startClientX;
+    const next = clampRightPanelWidthPx(session.startWidth - delta);
+    widthRef.current = next;
+    setRightPanelWidth(next);
+  }, []);
+
+  const onResizePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      const session = dragSessionRef.current;
+      if (!session || e.pointerId !== session.pointerId) return;
+      endDrag(e.currentTarget, e.pointerId);
+    },
+    [endDrag]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -126,14 +217,49 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
 
       {state.status === "ready" && pdfUrl && (
         <div className="flex min-h-0 min-w-0 flex-1">
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col border-r border-[--color-border-subtle] bg-[--color-surface]">
+          <div
+            className={`relative flex min-h-0 min-w-0 flex-1 flex-col bg-[--color-surface] ${resizing ? "[&_iframe]:pointer-events-none" : ""}`}
+          >
             <iframe
               title={t("document.pdfPreview")}
               src={pdfUrl}
               className="min-h-0 min-w-0 flex-1 border-0"
             />
           </div>
-          <aside className="sdf-reader flex min-h-0 w-[min(448px,45vw)] shrink-0 select-text flex-col overflow-hidden border-l border-[--color-border-subtle] bg-[--color-bg]">
+
+          {/* Wider invisible hit strip — WebView iframe steals events without capture + iframe pe:none */}
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label={t("document.resizePanels")}
+            className="group relative z-10 flex w-4 shrink-0 cursor-col-resize items-center justify-center border-x border-[--color-border-subtle] bg-[--color-bg] hover:bg-[--color-sidebar-hover]/35"
+            onPointerDown={onResizePointerDown}
+            onPointerMove={onResizePointerMove}
+            onPointerUp={onResizePointerUp}
+            onPointerCancel={onResizePointerUp}
+            onLostPointerCapture={(e) => {
+              if (dragSessionRef.current?.pointerId === e.pointerId) {
+                endDrag(e.currentTarget, e.pointerId);
+              }
+            }}
+            style={{ touchAction: "none" }}
+          >
+            <span
+              className="pointer-events-none flex h-9 w-5 items-center justify-center rounded-full border border-[--color-border-subtle] bg-[--color-surface-elevated] text-[--color-muted] shadow-sm transition-[color,background-color] group-hover:border-[--color-border] group-hover:bg-[--color-sidebar-hover]"
+              aria-hidden
+            >
+              <GripVertical className="h-3.5 w-3.5 opacity-80" strokeWidth={2} />
+            </span>
+          </div>
+
+          <aside
+            className="sdf-reader flex min-h-0 shrink-0 select-text flex-col overflow-hidden bg-[--color-bg]"
+            style={{
+              width: rightPanelWidth,
+              minWidth: 0,
+              ...(resizing ? { transition: "none" } : {}),
+            }}
+          >
             <div
               className="flex shrink-0 gap-0 px-4"
               style={{

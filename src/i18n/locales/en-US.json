@@ -63,7 +63,8 @@
     "back": "Back",
     "loading": "Opening document…",
     "errorTitle": "Could not open this SDF file",
-    "pdfPreview": "PDF preview"
+    "pdfPreview": "PDF preview",
+    "resizePanels": "Drag to resize panels"
   },
   "dashboard": {
     "bannerAwaiting": "You have <highlight>{{count}} documents</highlight> awaiting action.",

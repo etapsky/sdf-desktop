@@ -63,7 +63,8 @@
     "back": "Retour",
     "loading": "Ouverture du document…",
     "errorTitle": "Impossible d’ouvrir ce fichier SDF",
-    "pdfPreview": "Aperçu PDF"
+    "pdfPreview": "Aperçu PDF",
+    "resizePanels": "Glisser pour redimensionner les panneaux"
   },
   "dashboard": {
     "bannerAwaiting": "Il vous reste <highlight>{{count}} documents</highlight> à traiter.",

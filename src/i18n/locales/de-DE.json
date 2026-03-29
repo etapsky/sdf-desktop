@@ -63,7 +63,8 @@
     "back": "Zurück",
     "loading": "Dokument wird geöffnet…",
     "errorTitle": "SDF-Datei konnte nicht geöffnet werden",
-    "pdfPreview": "PDF-Vorschau"
+    "pdfPreview": "PDF-Vorschau",
+    "resizePanels": "Ziehen, um die Bereiche zu vergrößern oder zu verkleinern"
   },
   "dashboard": {
     "bannerAwaiting": "Sie haben <highlight>{{count}} Dokumente</highlight>, die noch bearbeitet werden müssen.",

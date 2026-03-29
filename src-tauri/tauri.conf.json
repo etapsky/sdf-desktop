@@ -42,6 +42,10 @@
     "longDescription": "Produce, read, sign, and sync SDF (Smart Document Format) documents natively on macOS and Windows. Built by Etapsky Inc.",
     "copyright": "Copyright (c) 2026 Yunus YILDIZ",
     "externalBin": [],
+    "resources": {
+      "icons/SDFDocument.icns": "SDFDocument.icns",
+      "icons/SDFDocument.ico": "SDFDocument.ico"
+    },
     "fileAssociations": [
       {
         "ext": ["sdf"],

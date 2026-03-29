@@ -59,6 +59,12 @@
     "enabled": "Enabled",
     "registered": "Registered"
   },
+  "document": {
+    "back": "Back",
+    "loading": "Opening document…",
+    "errorTitle": "Could not open this SDF file",
+    "pdfPreview": "PDF preview"
+  },
   "dashboard": {
     "bannerAwaiting": "You have <highlight>{{count}} documents</highlight> awaiting action.",
     "newDocument": "New Document",

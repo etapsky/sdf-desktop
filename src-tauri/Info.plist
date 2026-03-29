@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Merged into the app bundle Info.plist. SDFDocument.icns is bundled via bundle.resources. -->
+  <!-- Aligns with sdf/tooling/os-integration and Homebrew SDFDocument.icns usage. -->
+  <key>UTExportedTypeDeclarations</key>
+  <array>
+    <dict>
+      <key>UTTypeIdentifier</key>
+      <string>com.etapsky.sdf</string>
+      <key>UTTypeDescription</key>
+      <string>Smart Document Format</string>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>public.data</string>
+        <string>public.archive</string>
+      </array>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array>
+          <string>sdf</string>
+        </array>
+        <key>public.mime-type</key>
+        <array>
+          <string>application/x-sdf</string>
+        </array>
+      </dict>
+      <key>UTTypeIconFile</key>
+      <string>SDFDocument</string>
+    </dict>
+  </array>
+</dict>
+</plist>

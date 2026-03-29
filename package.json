@@ -8,11 +8,13 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
+    "icons": "bash scripts/generate-icons.sh",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "test": "vitest"
   },
   "dependencies": {
+    "@etapsky/sdf-kit": "^0.2.2",
     "@hookform/resolvers": "^5",
     "@tanstack/react-query": "^5",
     "@tanstack/react-router": "^1",

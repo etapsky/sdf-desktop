@@ -1,0 +1,169 @@
+// Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
+import { useCallback, useEffect, useRef, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { useTranslation } from "react-i18next";
+import { parseSDF, SDFError, type SDFParseResult } from "@etapsky/sdf-kit";
+import { ArrowLeft, FileText, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+type LoadState =
+  | { status: "loading" }
+  | { status: "error"; message: string; code?: string }
+  | { status: "ready"; result: SDFParseResult; fileLabel: string };
+
+function fileNameFromPath(path: string): string {
+  const parts = path.split(/[/\\]/);
+  return parts[parts.length - 1] || path;
+}
+
+interface DocumentReaderViewProps {
+  path: string;
+  onClose: () => void;
+}
+
+export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
+  const { t } = useTranslation();
+  const [state, setState] = useState<LoadState>({ status: "loading" });
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [panel, setPanel] = useState<"data" | "schema">("data");
+  const blobRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setState({ status: "loading" });
+    setPdfUrl(null);
+    if (blobRef.current) {
+      URL.revokeObjectURL(blobRef.current);
+      blobRef.current = null;
+    }
+
+    void (async () => {
+      try {
+        const bytes = await invoke<number[]>("read_sdf_file", { path });
+        const u8 = new Uint8Array(bytes);
+        const result = (await parseSDF(u8)) as SDFParseResult;
+        if (cancelled) return;
+        const u = URL.createObjectURL(new Blob([result.pdfBytes], { type: "application/pdf" }));
+        if (cancelled) {
+          URL.revokeObjectURL(u);
+          return;
+        }
+        blobRef.current = u;
+        setPdfUrl(u);
+        setState({
+          status: "ready",
+          result,
+          fileLabel: fileNameFromPath(path),
+        });
+      } catch (e) {
+        if (cancelled) return;
+        if (e instanceof SDFError) {
+          setState({ status: "error", message: e.message, code: e.code });
+        } else {
+          setState({ status: "error", message: e instanceof Error ? e.message : String(e) });
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (blobRef.current) {
+        URL.revokeObjectURL(blobRef.current);
+        blobRef.current = null;
+      }
+    };
+  }, [path]);
+
+  const jsonBlock = useCallback((obj: Record<string, unknown>) => {
+    try {
+      return JSON.stringify(obj, null, 2);
+    } catch {
+      return "{}";
+    }
+  }, []);
+
+  return (
+    <div className="flex h-full min-h-0 flex-col bg-[--color-bg]">
+      <header className="flex shrink-0 items-center gap-3 border-b border-[--color-border-subtle] px-4 py-2.5">
+        <Button type="button" variant="ghost" size="sm" className="gap-1.5 -ml-1" onClick={onClose}>
+          <ArrowLeft className="h-4 w-4" />
+          {t("document.back")}
+        </Button>
+        {state.status === "ready" && (
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <FileText className="h-4 w-4 shrink-0 text-[--color-muted]" />
+            <span className="truncate text-sm font-medium text-[--color-fg]">{state.fileLabel}</span>
+            <span className="shrink-0 rounded-md border border-[--color-border-subtle] bg-[--color-surface-elevated] px-2 py-0.5 text-[10px] font-medium text-[--color-muted]">
+              {state.result.meta.document_type ?? "—"}
+            </span>
+          </div>
+        )}
+      </header>
+
+      {state.status === "loading" && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-[--color-muted-fg]">
+          <Loader2 className="h-8 w-8 animate-spin opacity-70" />
+          <p className="text-sm">{t("document.loading")}</p>
+        </div>
+      )}
+
+      {state.status === "error" && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+          <p className="text-sm font-medium text-[--color-danger]">{t("document.errorTitle")}</p>
+          {state.code && (
+            <p className="font-mono text-xs text-[--color-muted]">{state.code}</p>
+          )}
+          <p className="max-w-md text-sm text-[--color-muted-fg]">{state.message}</p>
+          <Button type="button" variant="secondary" size="sm" onClick={onClose}>
+            {t("document.back")}
+          </Button>
+        </div>
+      )}
+
+      {state.status === "ready" && pdfUrl && (
+        <div className="flex min-h-0 flex-1">
+          <div className="min-w-0 flex-1 border-r border-[--color-border-subtle] bg-[--color-surface]">
+            <iframe
+              title={t("document.pdfPreview")}
+              src={pdfUrl}
+              className="h-full w-full border-0"
+            />
+          </div>
+          <aside className="flex w-[min(420px,42vw)] shrink-0 flex-col border-l border-[--color-border-subtle] bg-[--color-sidebar]">
+            <div className="flex shrink-0 gap-1 border-b border-[--color-border-subtle] p-1.5">
+              <button
+                type="button"
+                onClick={() => setPanel("data")}
+                className={
+                  panel === "data"
+                    ? "rounded-md bg-[--color-surface-elevated] px-3 py-1.5 text-xs font-medium text-[--color-fg]"
+                    : "rounded-md px-3 py-1.5 text-xs font-medium text-[--color-muted-fg] hover:bg-[--color-sidebar-hover]"
+                }
+              >
+                data.json
+              </button>
+              <button
+                type="button"
+                onClick={() => setPanel("schema")}
+                className={
+                  panel === "schema"
+                    ? "rounded-md bg-[--color-surface-elevated] px-3 py-1.5 text-xs font-medium text-[--color-fg]"
+                    : "rounded-md px-3 py-1.5 text-xs font-medium text-[--color-muted-fg] hover:bg-[--color-sidebar-hover]"
+                }
+              >
+                schema.json
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-auto p-3">
+              <pre className="whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-[--color-fg]">
+                {panel === "data"
+                  ? jsonBlock(state.result.data)
+                  : jsonBlock(state.result.schema)}
+              </pre>
+            </div>
+          </aside>
+        </div>
+      )}
+    </div>
+  );
+}

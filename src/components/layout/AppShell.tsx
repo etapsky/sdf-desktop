@@ -1,10 +1,12 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { CommandPalette } from "@/components/command/CommandPalette";
 import { DashboardView } from "@/views/Dashboard/DashboardView";
+import { DocumentReaderView } from "@/views/Document/DocumentReaderView";
 import { SettingsView } from "@/views/Settings/SettingsView";
+import { useSdfOpenListener } from "@/hooks/useSdfOpenListener";
 import { useThemeStore } from "@/stores/themeStore";
 
 type View = "dashboard" | "documents" | "cloud" | "settings" | "new";
@@ -13,7 +15,15 @@ export function AppShell() {
   const [activeView, setActiveView] = useState<View>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [openDocumentPath, setOpenDocumentPath] = useState<string | null>(null);
   const { resolved } = useThemeStore();
+
+  const handleOpenSdfPath = useCallback((filePath: string) => {
+    setOpenDocumentPath(filePath);
+    setActiveView("dashboard");
+  }, []);
+
+  useSdfOpenListener(handleOpenSdfPath);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", resolved);
@@ -32,8 +42,10 @@ export function AppShell() {
 
   const renderView = () => {
     switch (activeView) {
-      case "settings": return <SettingsView />;
-      default:         return <DashboardView />;
+      case "settings":
+        return <SettingsView />;
+      default:
+        return <DashboardView onOpenSdfFile={handleOpenSdfPath} />;
     }
   };
 
@@ -77,7 +89,14 @@ export function AppShell() {
             background: "var(--color-bg)",
           }}
         >
-          {renderView()}
+          {openDocumentPath ? (
+            <DocumentReaderView
+              path={openDocumentPath}
+              onClose={() => setOpenDocumentPath(null)}
+            />
+          ) : (
+            renderView()
+          )}
         </main>
       </div>
     </div>

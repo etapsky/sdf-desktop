@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import { open } from "@tauri-apps/plugin-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,6 +17,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import sdfIcon from "@/assets/sdf_icon.svg";
+
+interface DashboardViewProps {
+  onOpenSdfFile?: (path: string) => void;
+}
 
 interface RecentFile {
   id: string;
@@ -99,8 +104,21 @@ function StatCard({ label, value, sub, icon, color }: StatCardProps) {
   );
 }
 
-export function DashboardView() {
+export function DashboardView({ onOpenSdfFile }: DashboardViewProps) {
   const { t } = useTranslation();
+
+  const handleOpenFile = useCallback(async () => {
+    if (!onOpenSdfFile) return;
+    try {
+      const selected = await open({
+        multiple: false,
+        filters: [{ name: "SDF", extensions: ["sdf"] }],
+      });
+      if (typeof selected === "string" && selected) onOpenSdfFile(selected);
+    } catch {
+      /* dialog cancelled or not in Tauri */
+    }
+  }, [onOpenSdfFile]);
 
   const greetingText = useMemo(() => {
     const h = new Date().getHours();
@@ -177,7 +195,13 @@ export function DashboardView() {
                   <Plus className="h-3.5 w-3.5" />
                   {t("dashboard.newDocument")}
                 </Button>
-                <Button variant="secondary" size="sm" className="gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="gap-2"
+                  onClick={handleOpenFile}
+                >
                   <Upload className="h-3.5 w-3.5" />
                   {t("dashboard.openFile")}
                 </Button>

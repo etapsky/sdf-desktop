@@ -59,6 +59,12 @@
     "enabled": "Activé",
     "registered": "Enregistré"
   },
+  "document": {
+    "back": "Retour",
+    "loading": "Ouverture du document…",
+    "errorTitle": "Impossible d’ouvrir ce fichier SDF",
+    "pdfPreview": "Aperçu PDF"
+  },
   "dashboard": {
     "bannerAwaiting": "Il vous reste <highlight>{{count}} documents</highlight> à traiter.",
     "newDocument": "Nouveau document",

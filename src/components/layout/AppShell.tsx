@@ -45,7 +45,12 @@ export function AppShell() {
       case "settings":
         return <SettingsView />;
       default:
-        return <DashboardView onOpenSdfFile={handleOpenSdfPath} />;
+        return (
+          <DashboardView
+            onOpenSdfFile={handleOpenSdfPath}
+            onNewDocument={() => setActiveView("new")}
+          />
+        );
     }
   };
 

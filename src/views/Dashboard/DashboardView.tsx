@@ -20,6 +20,7 @@ import sdfIcon from "@/assets/sdf_icon.svg";
 
 interface DashboardViewProps {
   onOpenSdfFile?: (path: string) => void;
+  onNewDocument?: () => void;
 }
 
 interface RecentFile {
@@ -104,7 +105,7 @@ function StatCard({ label, value, sub, icon, color }: StatCardProps) {
   );
 }
 
-export function DashboardView({ onOpenSdfFile }: DashboardViewProps) {
+export function DashboardView({ onOpenSdfFile, onNewDocument }: DashboardViewProps) {
   const { t } = useTranslation();
 
   const handleOpenFile = useCallback(async () => {
@@ -191,7 +192,12 @@ export function DashboardView({ onOpenSdfFile }: DashboardViewProps) {
                 </p>
               </div>
               <div className="ml-auto flex items-center gap-2">
-                <Button size="sm" className="gap-2 shadow-[--shadow-sm]">
+                <Button
+                  type="button"
+                  size="sm"
+                  className="gap-2 shadow-[--shadow-sm]"
+                  onClick={() => onNewDocument?.()}
+                >
                   <Plus className="h-3.5 w-3.5" />
                   {t("dashboard.newDocument")}
                 </Button>

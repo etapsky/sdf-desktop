@@ -40,7 +40,7 @@
   --color-sidebar:          color-mix(in srgb, #152240 94%, #000000);
   --color-sidebar-border:   color-mix(in srgb, #152240 52%, #ffffff);
   --color-sidebar-hover:    color-mix(in srgb, #152240 82%, #ffffff);
-  --color-sidebar-active:   color-mix(in srgb, #152240 74%, #ffffff);
+  --color-sidebar-active:   color-mix(in oklch, oklch(62% 0.20 240) 22%, color-mix(in srgb, #152240 82%, #ffffff));
 
   --shadow-sm:  0 1px 3px oklch(0% 0 0 / 0.40), 0 1px 2px oklch(0% 0 0 / 0.30);
   --shadow-md:  0 4px 12px oklch(0% 0 0 / 0.45), 0 2px 4px oklch(0% 0 0 / 0.30);
@@ -82,7 +82,7 @@
   --color-sidebar:          oklch(96% 0.006 264);
   --color-sidebar-border:   oklch(88% 0.010 264);
   --color-sidebar-hover:    oklch(92% 0.008 264);
-  --color-sidebar-active:   oklch(89% 0.012 264);
+  --color-sidebar-active:   color-mix(in oklch, oklch(50% 0.22 264) 14%, oklch(92% 0.008 264));
 
   --shadow-sm:  0 1px 3px oklch(0% 0 0 / 0.08), 0 1px 2px oklch(0% 0 0 / 0.06);
   --shadow-md:  0 4px 12px oklch(0% 0 0 / 0.10), 0 2px 4px oklch(0% 0 0 / 0.07);

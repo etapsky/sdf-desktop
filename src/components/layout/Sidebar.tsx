@@ -1,14 +1,12 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { useThemeStore, type ThemeMode } from "@/stores/themeStore";
 import {
   LayoutDashboard,
   FileText,
   Settings,
   Cloud,
-  Plus,
   Sun,
   Moon,
   Monitor,
@@ -32,13 +30,19 @@ function NavItem({ icon, label, active, badge, collapsed, onClick }: NavItemProp
       title={collapsed ? label : undefined}
       style={{ cursor: "pointer" }}
       className={cn(
-        "flex w-full items-center rounded-md transition-colors duration-100",
+        "relative flex w-full items-center rounded-md transition-colors duration-100",
         collapsed ? "justify-center px-0 py-2 h-9" : "gap-2.5 px-2.5 py-1.5",
         active
           ? "bg-[var(--color-sidebar-active)] text-[var(--color-fg)] font-medium"
           : "text-[var(--color-muted-fg)] hover:bg-[var(--color-sidebar-hover)] hover:text-[var(--color-fg)]"
       )}
     >
+      {active && !collapsed && (
+        <span
+          aria-hidden
+          className="absolute left-0 top-1 bottom-1 w-[3px] rounded-full bg-[var(--color-primary)]"
+        />
+      )}
       <span className={cn("shrink-0 w-4 h-4", active && "text-[var(--color-primary)]")}>
         {icon}
       </span>
@@ -133,60 +137,8 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
         transition: "width 200ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
-      {/* ── Quick action ── */}
-      <div style={{ padding: collapsed ? "10px 6px" : "10px 8px", flexShrink: 0 }}>
-        {collapsed ? (
-          <button
-            onClick={nav("new")}
-            title={t("nav.newDocument")}
-            style={{
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              height: 32,
-              borderRadius: 6,
-              border: "none",
-              background: "var(--color-primary)",
-              color: "var(--color-primary-fg)",
-            }}
-          >
-            <Plus style={{ width: 14, height: 14 }} />
-          </button>
-        ) : (
-          <Button
-            variant="default"
-            size="sm"
-            className="w-full justify-start gap-2"
-            style={{ fontSize: 13 }}
-            onClick={nav("new")}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {t("nav.newDocument")}
-          </Button>
-        )}
-      </div>
-
-      <div style={{ height: 1, background: "var(--color-sidebar-border)" }} />
-
       {/* ── Navigation ── */}
-      <nav style={{ flex: 1, overflowY: "auto", padding: collapsed ? "8px 6px" : "8px" }}>
-        {!collapsed && (
-          <p
-            style={{
-              fontSize: 10,
-              fontWeight: 600,
-              color: "var(--color-muted)",
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              padding: "2px 10px 6px",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {t("nav.workspace")}
-          </p>
-        )}
+      <nav style={{ flex: 1, overflowY: "auto", padding: collapsed ? "10px 6px 8px" : "10px 8px 8px" }}>
         <NavItem
           icon={<LayoutDashboard className="h-4 w-4" />}
           label={t("nav.dashboard")}

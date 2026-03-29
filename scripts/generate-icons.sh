@@ -5,8 +5,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-echo "→ App icon (Dock / taskbar): assets/fennec-fox.svg → src-tauri/icons/"
-pnpm exec tauri icon assets/fennec-fox.svg
+echo "→ App icon (Dock / taskbar): assets/fennec-fox-app-icon.svg → src-tauri/icons/"
+pnpm exec tauri icon assets/fennec-fox-app-icon.svg
 
 TMP="$ROOT/src-tauri/icons/.sdf-doc-icon-build"
 rm -rf "$TMP"

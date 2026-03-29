@@ -6,7 +6,7 @@ Etapsky — Smart Document Workstation (Tauri + React).
 
 | Asset | Role |
 |--------|------|
-| [`assets/fennec-fox.svg`](assets/fennec-fox.svg) | **Application** icon (Dock, taskbar, window) → `pnpm exec tauri icon …` → `src-tauri/icons/icon.icns`, `icon.ico`, PNGs |
+| [`assets/fennec-fox-app-icon.svg`](assets/fennec-fox-app-icon.svg) | **Application** icon (from `fennec-fox.svg` + opaque plate for Dock/taskbar) → `pnpm exec tauri icon …` → `src-tauri/icons/icon.icns`, `icon.ico`, PNGs |
 | [`assets/sdf_icon.svg`](assets/sdf_icon.svg) | **`.sdf` document** type → `SDFDocument.icns` / `SDFDocument.ico` (bundled via `tauri.conf.json` → `bundle.resources`) |
 
 Regenerate both from SVG (e.g. after logo tweaks):

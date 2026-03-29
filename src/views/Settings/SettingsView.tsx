@@ -1,7 +1,11 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Settings } from "lucide-react";
 import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
+import { useLocaleStore, APP_LOCALES, type AppLocale } from "@/stores/localeStore";
+import { localeToTranslationKey } from "@/i18n/localeLabel";
+import { cn } from "@/lib/utils";
 
 function SettingRow({
   label,
@@ -39,55 +43,85 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export function SettingsView() {
+  const { t } = useTranslation();
+  const { locale, setLocale } = useLocaleStore();
+
   return (
     <div className="flex flex-col h-full overflow-hidden bg-[--color-bg]">
       <div className="flex-1 overflow-y-auto">
         <div className="p-6 max-w-2xl mx-auto space-y-6">
-
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-[--color-primary-muted] flex items-center justify-center">
               <Settings className="h-4 w-4 text-[--color-primary]" />
             </div>
-            <h1 className="text-xl font-bold text-[--color-fg]">Settings</h1>
+            <h1 className="text-xl font-bold text-[--color-fg]">{t("settings.title")}</h1>
           </div>
 
-          <Section title="Account">
-            <SettingRow label="Signed in as" description="Etapsky Inc.">
+          <Section title={t("settings.language")}>
+            <SettingRow
+              label={t("settings.displayLanguage")}
+              description={t("settings.languageDescription")}
+            >
+              <select
+                value={locale}
+                onChange={(e) => setLocale(e.target.value as AppLocale)}
+                className={cn(
+                  "text-sm rounded-lg border border-[--color-border] bg-[--color-bg] text-[--color-fg]",
+                  "px-3 py-2 min-w-[220px] cursor-pointer outline-none",
+                  "focus-visible:ring-2 focus-visible:ring-[--color-primary] focus-visible:ring-offset-1 focus-visible:ring-offset-[--color-bg]"
+                )}
+              >
+                {APP_LOCALES.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {t(localeToTranslationKey(loc))}
+                  </option>
+                ))}
+              </select>
+            </SettingRow>
+          </Section>
+
+          <Section title={t("settings.account")}>
+            <SettingRow label={t("settings.signedInAs")} description={t("settings.signedInOrg")}>
               <span className="text-sm text-[--color-muted]">yunus@etapsky.com</span>
             </SettingRow>
-            <SettingRow label="API Server">
+            <SettingRow label={t("settings.apiServer")}>
               <span className="text-xs font-mono text-[--color-muted]">api.etapsky.com</span>
             </SettingRow>
           </Section>
 
-          <Section title="Application">
-            <SettingRow label="Auto-update" description="Check for updates on launch">
-              <Badge variant="success">Enabled</Badge>
+          <Section title={t("settings.application")}>
+            <SettingRow label={t("settings.autoUpdate")} description={t("settings.autoUpdateDesc")}>
+              <Badge variant="success">{t("settings.enabled")}</Badge>
             </SettingRow>
-            <SettingRow label="File Association" description="Open .sdf files with this app">
-              <Badge variant="success">Registered</Badge>
+            <SettingRow
+              label={t("settings.fileAssociation")}
+              description={t("settings.fileAssociationDesc")}
+            >
+              <Badge variant="success">{t("settings.registered")}</Badge>
             </SettingRow>
           </Section>
 
-          <Section title="About">
-            <SettingRow label="Version">
+          <Section title={t("settings.about")}>
+            <SettingRow label={t("settings.version")}>
               <Badge variant="secondary">0.1.0</Badge>
             </SettingRow>
-            <SettingRow label="SDF Format">
+            <SettingRow label={t("settings.sdfFormat")}>
               <span className="text-sm text-[--color-muted]">Spec v1.0</span>
             </SettingRow>
-            <SettingRow label="License">
+            <SettingRow label={t("settings.license")}>
               <Badge variant="amber">BUSL-1.1</Badge>
             </SettingRow>
-            <SettingRow label="Documentation">
-              <button className="flex items-center gap-1 text-xs text-[--color-primary] hover:underline cursor-pointer">
+            <SettingRow label={t("settings.documentation")}>
+              <button
+                type="button"
+                className="flex items-center gap-1 text-xs text-[--color-primary] hover:underline cursor-pointer"
+              >
                 docs.etapsky.com
                 <ExternalLink className="h-3 w-3" />
               </button>
             </SettingRow>
           </Section>
 
-          {/* Etapsky branding */}
           <div className="flex items-center justify-center pt-4 pb-2">
             <img src={etapskyLogo} alt="Etapsky" className="h-5 opacity-30" />
           </div>

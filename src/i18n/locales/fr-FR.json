@@ -1,0 +1,79 @@
+{
+  "locale": {
+    "en_US": "Anglais (États-Unis)",
+    "fr_FR": "Français (France)",
+    "de_DE": "Allemand (Allemagne)"
+  },
+  "nav": {
+    "workspace": "Espace de travail",
+    "dashboard": "Tableau de bord",
+    "documents": "Documents",
+    "cloudSync": "Sync cloud",
+    "soon": "Bientôt",
+    "settings": "Paramètres",
+    "newDocument": "Nouveau document"
+  },
+  "header": {
+    "hideSidebar": "Masquer la barre latérale",
+    "showSidebar": "Afficher la barre latérale"
+  },
+  "theme": {
+    "appearance": "Apparence",
+    "system": "Système",
+    "light": "Clair",
+    "dark": "Sombre",
+    "tooltip": "{{current}} · suivant : {{next}}"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "displayLanguage": "Langue d’affichage",
+    "languageDescription": "Langue de l’interface de l’application",
+    "account": "Compte",
+    "application": "Application",
+    "about": "À propos",
+    "signedInAs": "Connecté en tant que",
+    "signedInOrg": "Etapsky Inc.",
+    "apiServer": "Serveur API",
+    "autoUpdate": "Mise à jour auto",
+    "autoUpdateDesc": "Vérifier les mises à jour au lancement",
+    "fileAssociation": "Association de fichiers",
+    "fileAssociationDesc": "Ouvrir les fichiers .sdf avec cette application",
+    "version": "Version",
+    "sdfFormat": "Format SDF",
+    "license": "Licence",
+    "documentation": "Documentation",
+    "enabled": "Activé",
+    "registered": "Enregistré"
+  },
+  "dashboard": {
+    "bannerAwaiting": "Il vous reste <highlight>{{count}} documents</highlight> à traiter.",
+    "newDocument": "Nouveau document",
+    "openFile": "Ouvrir un fichier",
+    "statTotal": "Total",
+    "statTotalSub": "Tous les documents",
+    "statSigned": "Signés",
+    "statSignedSub": "75 % du total",
+    "statPending": "En attente",
+    "statPendingSub": "En attente de signature",
+    "statWeek": "Cette semaine",
+    "statWeekSub": "+2 par rapport à la semaine dernière",
+    "recent": "Documents récents",
+    "viewAll": "Tout voir",
+    "signed": "Signé",
+    "unsigned": "Non signé",
+    "invalid": "Invalide"
+  },
+  "greeting": {
+    "morning": "Bonjour, {{name}}",
+    "afternoon": "Bon après-midi, {{name}}",
+    "evening": "Bonsoir, {{name}}",
+    "night": "Bonne nuit, {{name}}"
+  },
+  "time": {
+    "minutesAgo": "il y a {{count}} min",
+    "hoursAgo": "il y a {{count}} h",
+    "yesterday": "Hier",
+    "daysAgo": "il y a {{count}} jours"
+  }
+}

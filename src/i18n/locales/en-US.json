@@ -1,0 +1,79 @@
+{
+  "locale": {
+    "en_US": "English (United States)",
+    "fr_FR": "Français (France)",
+    "de_DE": "Deutsch (Deutschland)"
+  },
+  "nav": {
+    "workspace": "Workspace",
+    "dashboard": "Dashboard",
+    "documents": "Documents",
+    "cloudSync": "Cloud Sync",
+    "soon": "Soon",
+    "settings": "Settings",
+    "newDocument": "New Document"
+  },
+  "header": {
+    "hideSidebar": "Hide sidebar",
+    "showSidebar": "Show sidebar"
+  },
+  "theme": {
+    "appearance": "Appearance",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark",
+    "tooltip": "{{current}} · next: {{next}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "displayLanguage": "Display language",
+    "languageDescription": "Interface language for the application",
+    "account": "Account",
+    "application": "Application",
+    "about": "About",
+    "signedInAs": "Signed in as",
+    "signedInOrg": "Etapsky Inc.",
+    "apiServer": "API Server",
+    "autoUpdate": "Auto-update",
+    "autoUpdateDesc": "Check for updates on launch",
+    "fileAssociation": "File association",
+    "fileAssociationDesc": "Open .sdf files with this app",
+    "version": "Version",
+    "sdfFormat": "SDF format",
+    "license": "License",
+    "documentation": "Documentation",
+    "enabled": "Enabled",
+    "registered": "Registered"
+  },
+  "dashboard": {
+    "bannerAwaiting": "You have <highlight>{{count}} documents</highlight> awaiting action.",
+    "newDocument": "New Document",
+    "openFile": "Open File",
+    "statTotal": "Total",
+    "statTotalSub": "All documents",
+    "statSigned": "Signed",
+    "statSignedSub": "75% of total",
+    "statPending": "Pending",
+    "statPendingSub": "Awaiting signature",
+    "statWeek": "This week",
+    "statWeekSub": "+2 from last week",
+    "recent": "Recent documents",
+    "viewAll": "View all",
+    "signed": "Signed",
+    "unsigned": "Unsigned",
+    "invalid": "Invalid"
+  },
+  "greeting": {
+    "morning": "Good morning, {{name}}",
+    "afternoon": "Good afternoon, {{name}}",
+    "evening": "Good evening, {{name}}",
+    "night": "Good night, {{name}}"
+  },
+  "time": {
+    "minutesAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}} hours ago",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago"
+  }
+}

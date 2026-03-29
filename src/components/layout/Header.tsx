@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { Sidebar, SidebarOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useThemeStore } from "@/stores/themeStore";
 import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
 
@@ -9,6 +10,7 @@ interface HeaderProps {
 }
 
 export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
+  const { t } = useTranslation();
   const { resolved } = useThemeStore();
   const logoFilter = resolved === "dark" ? "brightness(0) invert(1)" : "none";
 
@@ -35,7 +37,7 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
       {/* Sidebar toggle */}
       <button
         onClick={onToggleSidebar}
-        title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+        title={sidebarOpen ? t("header.hideSidebar") : t("header.showSidebar")}
         style={{
           cursor: "pointer",
           display: "flex",

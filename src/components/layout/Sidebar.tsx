@@ -1,4 +1,5 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useThemeStore, type ThemeMode } from "@/stores/themeStore";
@@ -63,85 +64,41 @@ function NavItem({ icon, label, active, badge, collapsed, onClick }: NavItemProp
   );
 }
 
-const THEME_OPTIONS: { mode: ThemeMode; icon: React.ReactNode; label: string }[] = [
-  { mode: "system", icon: <Monitor className="h-3.5 w-3.5" />, label: "System" },
-  { mode: "light",  icon: <Sun className="h-3.5 w-3.5" />,     label: "Light"  },
-  { mode: "dark",   icon: <Moon className="h-3.5 w-3.5" />,    label: "Dark"   },
-];
+const THEME_MODES: ThemeMode[] = ["system", "light", "dark"];
+
+const THEME_ICON: Record<ThemeMode, React.ReactNode> = {
+  system: <Monitor className="h-3.5 w-3.5" />,
+  light: <Sun className="h-3.5 w-3.5" />,
+  dark: <Moon className="h-3.5 w-3.5" />,
+};
 
 function ThemeToggle({ collapsed }: { collapsed: boolean }) {
-  const { mode, setMode } = useThemeStore();
-
-  if (collapsed) {
-    const current = THEME_OPTIONS.find((o) => o.mode === mode)!;
-    const next = THEME_OPTIONS[(THEME_OPTIONS.findIndex((o) => o.mode === mode) + 1) % 3];
-    return (
-      <button
-        onClick={() => setMode(next.mode)}
-        title={`Theme: ${mode}`}
-        style={{
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          height: 36,
-          border: "none",
-          background: "transparent",
-          color: "var(--color-muted-fg)",
-          borderRadius: 6,
-          transition: "background 100ms",
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = "var(--color-sidebar-hover)";
-          (e.currentTarget as HTMLButtonElement).style.color = "var(--color-fg)";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = "transparent";
-          (e.currentTarget as HTMLButtonElement).style.color = "var(--color-muted-fg)";
-        }}
-      >
-        {current.icon}
-      </button>
-    );
-  }
+  const { t } = useTranslation();
+  const { mode, cycle } = useThemeStore();
+  const i = THEME_MODES.indexOf(mode);
+  const nextMode = THEME_MODES[(i + 1) % THEME_MODES.length];
+  const label = t(`theme.${mode}`);
+  const nextLabel = t(`theme.${nextMode}`);
 
   return (
-    <div className="px-2.5 py-1.5 flex items-center justify-between">
-      <span style={{ fontSize: 12, color: "var(--color-muted-fg)" }}>Appearance</span>
-      <div
-        style={{
-          display: "flex",
-          gap: 2,
-          background: "var(--color-surface-elevated)",
-          border: "1px solid var(--color-border)",
-          borderRadius: 6,
-          padding: 2,
-        }}
+    <div className={cn("px-2.5", collapsed ? "py-0" : "py-2 flex flex-col gap-2")}>
+      {!collapsed && <span className="text-xs text-[--color-muted-fg]">{t("theme.appearance")}</span>}
+      <button
+        type="button"
+        onClick={() => cycle()}
+        title={t("theme.tooltip", { current: label, next: nextLabel })}
+        className={cn(
+          "flex w-full cursor-pointer items-center rounded-lg border border-[--color-border] bg-[--color-surface-elevated]",
+          "text-[--color-fg] transition-colors duration-150 active:scale-[0.98]",
+          "hover:bg-[--color-sidebar-hover]",
+          collapsed ? "h-9 justify-center px-0" : "justify-center gap-2 px-3 py-2.5"
+        )}
       >
-        {THEME_OPTIONS.map(({ mode: m, icon, label }) => (
-          <button
-            key={m}
-            onClick={() => setMode(m)}
-            title={label}
-            style={{
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 22,
-              height: 22,
-              borderRadius: 4,
-              border: "none",
-              background: mode === m ? "var(--color-primary)" : "transparent",
-              color: mode === m ? "var(--color-primary-fg)" : "var(--color-muted)",
-              transition: "all 120ms ease",
-            }}
-          >
-            {icon}
-          </button>
-        ))}
-      </div>
+        <span key={mode} className="inline-flex shrink-0 theme-toggle-icon">
+          {THEME_ICON[mode]}
+        </span>
+        {!collapsed && <span className="text-xs font-medium">{label}</span>}
+      </button>
     </div>
   );
 }
@@ -153,6 +110,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigate }: SidebarProps) {
+  const { t } = useTranslation();
   const nav = (view: string) => () => onNavigate?.(view);
 
   return (
@@ -174,7 +132,7 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
         {collapsed ? (
           <button
             onClick={nav("new")}
-            title="New Document"
+            title={t("nav.newDocument")}
             style={{
               cursor: "pointer",
               display: "flex",
@@ -199,7 +157,7 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
             onClick={nav("new")}
           >
             <Plus className="h-3.5 w-3.5" />
-            New Document
+            {t("nav.newDocument")}
           </Button>
         )}
       </div>
@@ -220,28 +178,28 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
               whiteSpace: "nowrap",
             }}
           >
-            Workspace
+            {t("nav.workspace")}
           </p>
         )}
         <NavItem
           icon={<LayoutDashboard className="h-4 w-4" />}
-          label="Dashboard"
+          label={t("nav.dashboard")}
           active={activeView === "dashboard"}
           collapsed={collapsed}
           onClick={nav("dashboard")}
         />
         <NavItem
           icon={<FileText className="h-4 w-4" />}
-          label="Documents"
+          label={t("nav.documents")}
           active={activeView === "documents"}
           collapsed={collapsed}
           onClick={nav("documents")}
         />
         <NavItem
           icon={<Cloud className="h-4 w-4" />}
-          label="Cloud Sync"
+          label={t("nav.cloudSync")}
           active={activeView === "cloud"}
-          badge={collapsed ? undefined : "Soon"}
+          badge={collapsed ? undefined : t("nav.soon")}
           collapsed={collapsed}
           onClick={nav("cloud")}
         />
@@ -253,7 +211,7 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
       <div style={{ padding: collapsed ? "8px 6px" : "8px", flexShrink: 0 }}>
         <NavItem
           icon={<Settings className="h-4 w-4" />}
-          label="Settings"
+          label={t("nav.settings")}
           active={activeView === "settings"}
           collapsed={collapsed}
           onClick={nav("settings")}

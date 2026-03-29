@@ -1,0 +1,79 @@
+{
+  "locale": {
+    "en_US": "Englisch (USA)",
+    "fr_FR": "Französisch (Frankreich)",
+    "de_DE": "Deutsch (Deutschland)"
+  },
+  "nav": {
+    "workspace": "Arbeitsbereich",
+    "dashboard": "Übersicht",
+    "documents": "Dokumente",
+    "cloudSync": "Cloud-Sync",
+    "soon": "Demnächst",
+    "settings": "Einstellungen",
+    "newDocument": "Neues Dokument"
+  },
+  "header": {
+    "hideSidebar": "Seitenleiste ausblenden",
+    "showSidebar": "Seitenleiste einblenden"
+  },
+  "theme": {
+    "appearance": "Erscheinungsbild",
+    "system": "System",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "tooltip": "{{current}} · als Nächstes: {{next}}"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "displayLanguage": "Anzeigesprache",
+    "languageDescription": "Sprache der Benutzeroberfläche",
+    "account": "Konto",
+    "application": "Anwendung",
+    "about": "Info",
+    "signedInAs": "Angemeldet als",
+    "signedInOrg": "Etapsky Inc.",
+    "apiServer": "API-Server",
+    "autoUpdate": "Automatische Updates",
+    "autoUpdateDesc": "Beim Start auf Updates prüfen",
+    "fileAssociation": "Dateizuordnung",
+    "fileAssociationDesc": ".sdf-Dateien mit dieser App öffnen",
+    "version": "Version",
+    "sdfFormat": "SDF-Format",
+    "license": "Lizenz",
+    "documentation": "Dokumentation",
+    "enabled": "Aktiv",
+    "registered": "Registriert"
+  },
+  "dashboard": {
+    "bannerAwaiting": "Sie haben <highlight>{{count}} Dokumente</highlight>, die noch bearbeitet werden müssen.",
+    "newDocument": "Neues Dokument",
+    "openFile": "Datei öffnen",
+    "statTotal": "Gesamt",
+    "statTotalSub": "Alle Dokumente",
+    "statSigned": "Signiert",
+    "statSignedSub": "75 % der Gesamtzahl",
+    "statPending": "Ausstehend",
+    "statPendingSub": "Signatur ausstehend",
+    "statWeek": "Diese Woche",
+    "statWeekSub": "+2 zur Vorwoche",
+    "recent": "Zuletzt verwendet",
+    "viewAll": "Alle anzeigen",
+    "signed": "Signiert",
+    "unsigned": "Nicht signiert",
+    "invalid": "Ungültig"
+  },
+  "greeting": {
+    "morning": "Guten Morgen, {{name}}",
+    "afternoon": "Guten Tag, {{name}}",
+    "evening": "Guten Abend, {{name}}",
+    "night": "Gute Nacht, {{name}}"
+  },
+  "time": {
+    "minutesAgo": "vor {{count}} Min.",
+    "hoursAgo": "vor {{count}} Std.",
+    "yesterday": "Gestern",
+    "daysAgo": "vor {{count}} Tagen"
+  }
+}

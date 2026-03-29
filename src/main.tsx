@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "./i18n";
 import { AppShell } from "./components/layout/AppShell";
 import "./index.css";
 

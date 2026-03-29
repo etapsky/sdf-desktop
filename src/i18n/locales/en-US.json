@@ -64,7 +64,10 @@
     "loading": "Opening document…",
     "errorTitle": "Could not open this SDF file",
     "pdfPreview": "PDF preview",
-    "resizePanels": "Drag to resize panels"
+    "resizePanels": "Drag to resize panels",
+    "downloadPdf": "Download PDF",
+    "downloadPdfSaving": "Saving…",
+    "downloadPdfError": "Could not save PDF"
   },
   "dashboard": {
     "bannerAwaiting": "You have <highlight>{{count}} documents</highlight> awaiting action.",

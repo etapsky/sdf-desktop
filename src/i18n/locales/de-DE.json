@@ -64,7 +64,10 @@
     "loading": "Dokument wird geöffnet…",
     "errorTitle": "SDF-Datei konnte nicht geöffnet werden",
     "pdfPreview": "PDF-Vorschau",
-    "resizePanels": "Ziehen, um die Bereiche zu vergrößern oder zu verkleinern"
+    "resizePanels": "Ziehen, um die Bereiche zu vergrößern oder zu verkleinern",
+    "downloadPdf": "PDF herunterladen",
+    "downloadPdfSaving": "Wird gespeichert…",
+    "downloadPdfError": "PDF konnte nicht gespeichert werden"
   },
   "dashboard": {
     "bannerAwaiting": "Sie haben <highlight>{{count}} Dokumente</highlight>, die noch bearbeitet werden müssen.",

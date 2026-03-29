@@ -64,7 +64,10 @@
     "loading": "Ouverture du document…",
     "errorTitle": "Impossible d’ouvrir ce fichier SDF",
     "pdfPreview": "Aperçu PDF",
-    "resizePanels": "Glisser pour redimensionner les panneaux"
+    "resizePanels": "Glisser pour redimensionner les panneaux",
+    "downloadPdf": "Télécharger le PDF",
+    "downloadPdfSaving": "Enregistrement…",
+    "downloadPdfError": "Impossible d'enregistrer le PDF"
   },
   "dashboard": {
     "bannerAwaiting": "Il vous reste <highlight>{{count}} documents</highlight> à traiter.",

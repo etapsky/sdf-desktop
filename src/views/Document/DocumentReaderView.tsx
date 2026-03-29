@@ -1,9 +1,11 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { save } from "@tauri-apps/plugin-dialog";
+import { writeFile } from "@tauri-apps/plugin-fs";
 import { useTranslation } from "react-i18next";
 import { parseSDF, SDFError, type SDFParseResult } from "@etapsky/sdf-kit";
-import { ArrowLeft, FileText, GripVertical, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, FileText, GripVertical, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTree } from "@/components/reader/DataTree";
 import { MetaCard } from "@/components/reader/MetaCard";
@@ -45,6 +47,7 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [panel, setPanel] = useState<ReaderPanel>("data");
+  const [pdfSaving, setPdfSaving] = useState(false);
   const [rightPanelWidth, setRightPanelWidth] = useState(defaultRightPanelWidthPx);
   const [resizing, setResizing] = useState(false);
   const blobRef = useRef<string | null>(null);
@@ -125,6 +128,24 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
     [endDrag]
   );
 
+  const handleDownloadPdf = useCallback(async () => {
+    if (state.status !== "ready" || pdfSaving) return;
+    const defaultName = state.fileLabel.replace(/\.sdf$/i, "") + ".pdf";
+    try {
+      setPdfSaving(true);
+      const savePath = await save({
+        defaultPath: defaultName,
+        filters: [{ name: "PDF", extensions: ["pdf"] }],
+      });
+      if (!savePath) return;
+      await writeFile(savePath, state.result.pdfBytes);
+    } catch {
+      // user dismissed the dialog or write failed — no-op
+    } finally {
+      setPdfSaving(false);
+    }
+  }, [state, pdfSaving]);
+
   const onResizeDoubleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     const w = clampRightPanelWidthPx(defaultRightPanelWidthPx());
@@ -198,6 +219,23 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
             <span className="shrink-0 rounded-md border border-[--color-border-subtle] bg-[--color-surface-elevated] px-2 py-0.5 text-[10px] font-medium text-[--color-muted]">
               {state.result.meta.document_type ?? "—"}
             </span>
+            <div className="ml-auto flex shrink-0 items-center">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={pdfSaving}
+                onClick={handleDownloadPdf}
+                className="gap-1.5"
+              >
+                {pdfSaving ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Download className="h-3.5 w-3.5" />
+                )}
+                {pdfSaving ? t("document.downloadPdfSaving") : t("document.downloadPdf")}
+              </Button>
+            </div>
           </div>
         )}
       </header>

@@ -99,6 +99,7 @@ export function AppShell() {
             <DocumentReaderView
               path={openDocumentPath}
               onClose={() => setOpenDocumentPath(null)}
+              onOpenFile={handleOpenSdfPath}
             />
           ) : (
             renderView()

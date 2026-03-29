@@ -1,11 +1,11 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { save } from "@tauri-apps/plugin-dialog";
+import { open, save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { useTranslation } from "react-i18next";
 import { parseSDF, SDFError, type SDFParseResult } from "@etapsky/sdf-kit";
-import { ArrowLeft, Download, FileText, GripVertical, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, FileText, FolderOpen, GripVertical, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTree } from "@/components/reader/DataTree";
 import { MetaCard } from "@/components/reader/MetaCard";
@@ -40,9 +40,10 @@ function fileNameFromPath(path: string): string {
 interface DocumentReaderViewProps {
   path: string;
   onClose: () => void;
+  onOpenFile?: (path: string) => void;
 }
 
-export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
+export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReaderViewProps) {
   const { t } = useTranslation();
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -146,6 +147,18 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
     }
   }, [state, pdfSaving]);
 
+  const handleOpenFile = useCallback(async () => {
+    try {
+      const selected = await open({
+        multiple: false,
+        filters: [{ name: "SDF", extensions: ["sdf"] }],
+      });
+      if (typeof selected === "string" && selected) onOpenFile?.(selected);
+    } catch {
+      /* dialog cancelled */
+    }
+  }, [onOpenFile]);
+
   const onResizeDoubleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     const w = clampRightPanelWidthPx(defaultRightPanelWidthPx());
@@ -219,7 +232,17 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
             <span className="shrink-0 rounded-md border border-[--color-border-subtle] bg-[--color-surface-elevated] px-2 py-0.5 text-[10px] font-medium text-[--color-muted]">
               {state.result.meta.document_type ?? "—"}
             </span>
-            <div className="ml-auto flex shrink-0 items-center">
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleOpenFile}
+                className="gap-1.5"
+              >
+                <FolderOpen className="h-3.5 w-3.5" />
+                {t("dashboard.openFile")}
+              </Button>
               <Button
                 type="button"
                 variant="secondary"

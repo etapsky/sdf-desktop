@@ -1,4 +1,6 @@
 /* Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1 */
+/* Demo-reader parity: IBM Plex for JSON / schema panels — must precede other @import (CSS spec). */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap");
 @import "tailwindcss";
 
 /* ─── Dark theme (default) — Etapsky navy #152240 ──────────────────────── */
@@ -85,6 +87,68 @@
   --shadow-sm:  0 1px 3px oklch(0% 0 0 / 0.08), 0 1px 2px oklch(0% 0 0 / 0.06);
   --shadow-md:  0 4px 12px oklch(0% 0 0 / 0.10), 0 2px 4px oklch(0% 0 0 / 0.07);
   --shadow-lg:  0 8px 24px oklch(0% 0 0 / 0.12), 0 4px 8px oklch(0% 0 0 / 0.08);
+}
+
+/* ─── SDF reader (right pane) — dedicated palette for contrast on navy (dark) / paper (light) */
+.sdf-reader {
+  --reader-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --reader-sans: "IBM Plex Sans", "Inter", system-ui, sans-serif;
+}
+
+/*
+ * Dark: pane = #152240; cards sit a step above so JSON “syntax” colors stay bright enough to read.
+ * Light: white cards on gray pane; accents are saturated mid-dark for WCAG-friendly contrast.
+ */
+:root:not([data-theme="light"]) .sdf-reader,
+[data-theme="dark"] .sdf-reader {
+  --reader-bg2: color-mix(in srgb, #ffffff 14%, #152240);
+  --reader-bg3: color-mix(in srgb, #ffffff 19%, #152240);
+  --reader-border: rgba(255, 255, 255, 0.16);
+  --reader-text: rgba(255, 255, 255, 0.96);
+  --reader-text2: rgba(255, 255, 255, 0.72);
+  --reader-text3: rgba(255, 255, 255, 0.5);
+  /* keys — cool lavender, high lightness */
+  --reader-accent2: oklch(82% 0.1 278);
+  /* numbers */
+  --reader-teal: oklch(80% 0.09 195);
+  --reader-teal2: oklch(78% 0.08 195);
+  /* bool / dates / warnings in data */
+  --reader-amber: oklch(84% 0.12 78);
+  --reader-coral: oklch(74% 0.14 28);
+}
+
+[data-theme="light"] .sdf-reader {
+  --reader-bg2: oklch(100% 0 264);
+  --reader-bg3: oklch(97.5% 0.006 264);
+  --reader-border: oklch(86% 0.014 264);
+  --reader-text: oklch(18% 0.03 264);
+  --reader-text2: oklch(38% 0.02 264);
+  --reader-text3: oklch(48% 0.018 264);
+  --reader-accent2: oklch(40% 0.22 278);
+  --reader-teal: oklch(36% 0.12 200);
+  --reader-teal2: oklch(38% 0.1 200);
+  --reader-amber: oklch(44% 0.15 72);
+  --reader-coral: oklch(46% 0.18 28);
+}
+
+@media (max-width: 768px) {
+  .sdf-reader .meta-card-row {
+    grid-template-columns: 1fr !important;
+    gap: 2px !important;
+  }
+  .sdf-reader .data-tree-row {
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+  .sdf-reader .data-tree-key {
+    min-width: unset !important;
+  }
+  .sdf-reader .schema-panel-row {
+    grid-template-columns: 1fr !important;
+    gap: 2px 0;
+    padding: 8px 0 !important;
+    align-items: start !important;
+  }
 }
 
 /* ─── Base ─────────────────────────────────────────────────────────────── */

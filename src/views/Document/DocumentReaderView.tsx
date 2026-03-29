@@ -1,15 +1,21 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useTranslation } from "react-i18next";
 import { parseSDF, SDFError, type SDFParseResult } from "@etapsky/sdf-kit";
 import { ArrowLeft, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DataTree } from "@/components/reader/DataTree";
+import { MetaCard } from "@/components/reader/MetaCard";
+import { ReaderSchemaPanel } from "@/components/reader/ReaderSchemaPanel";
+import { ReaderRawPanel } from "@/components/reader/ReaderRawPanel";
 
 type LoadState =
   | { status: "loading" }
   | { status: "error"; message: string; code?: string }
   | { status: "ready"; result: SDFParseResult; fileLabel: string };
+
+type ReaderPanel = "data" | "schema" | "meta";
 
 function fileNameFromPath(path: string): string {
   const parts = path.split(/[/\\]/);
@@ -25,7 +31,7 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
   const { t } = useTranslation();
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [panel, setPanel] = useState<"data" | "schema">("data");
+  const [panel, setPanel] = useState<ReaderPanel>("data");
   const blobRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -74,13 +80,11 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
     };
   }, [path]);
 
-  const jsonBlock = useCallback((obj: Record<string, unknown>) => {
-    try {
-      return JSON.stringify(obj, null, 2);
-    } catch {
-      return "{}";
-    }
-  }, []);
+  const panelTabs: { id: ReaderPanel; label: string }[] = [
+    { id: "data", label: "data.json" },
+    { id: "schema", label: "schema.json" },
+    { id: "meta", label: "meta.json" },
+  ];
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[--color-bg]">
@@ -129,37 +133,54 @@ export function DocumentReaderView({ path, onClose }: DocumentReaderViewProps) {
               className="h-full w-full border-0"
             />
           </div>
-          <aside className="flex w-[min(420px,42vw)] shrink-0 flex-col border-l border-[--color-border-subtle] bg-[--color-sidebar]">
-            <div className="flex shrink-0 gap-1 border-b border-[--color-border-subtle] p-1.5">
-              <button
-                type="button"
-                onClick={() => setPanel("data")}
-                className={
-                  panel === "data"
-                    ? "rounded-md bg-[--color-surface-elevated] px-3 py-1.5 text-xs font-medium text-[--color-fg]"
-                    : "rounded-md px-3 py-1.5 text-xs font-medium text-[--color-muted-fg] hover:bg-[--color-sidebar-hover]"
-                }
-              >
-                data.json
-              </button>
-              <button
-                type="button"
-                onClick={() => setPanel("schema")}
-                className={
-                  panel === "schema"
-                    ? "rounded-md bg-[--color-surface-elevated] px-3 py-1.5 text-xs font-medium text-[--color-fg]"
-                    : "rounded-md px-3 py-1.5 text-xs font-medium text-[--color-muted-fg] hover:bg-[--color-sidebar-hover]"
-                }
-              >
-                schema.json
-              </button>
+          <aside className="sdf-reader flex w-[min(448px,45vw)] shrink-0 select-text flex-col border-l border-[--color-border-subtle] bg-[--color-bg]">
+            <div
+              className="flex shrink-0 gap-0 px-4"
+              style={{
+                background: "var(--color-bg)",
+                borderBottom: "1px solid var(--reader-border)",
+              }}
+            >
+              {panelTabs.map((tab) => {
+                const active = panel === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setPanel(tab.id)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      borderBottom: active ? "2px solid var(--color-primary)" : "2px solid transparent",
+                      color: active ? "var(--reader-text)" : "var(--reader-text3)",
+                      fontFamily: "var(--reader-mono)",
+                      fontSize: "11px",
+                      padding: "12px 14px 10px",
+                      cursor: "pointer",
+                      transition: "color 0.15s",
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
-            <div className="min-h-0 flex-1 overflow-auto p-3">
-              <pre className="whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-[--color-fg]">
-                {panel === "data"
-                  ? jsonBlock(state.result.data)
-                  : jsonBlock(state.result.schema)}
-              </pre>
+            <div className="min-h-0 flex-1 overflow-auto p-4">
+              <div className="flex flex-col gap-3">
+                {panel === "data" && (
+                  <>
+                    <MetaCard meta={state.result.meta} />
+                    <DataTree data={state.result.data} />
+                  </>
+                )}
+                {panel === "schema" && <ReaderSchemaPanel schema={state.result.schema} />}
+                {panel === "meta" && (
+                  <ReaderRawPanel
+                    data={state.result.meta as unknown as Record<string, unknown>}
+                    label="meta.json"
+                  />
+                )}
+              </div>
             </div>
           </aside>
         </div>

@@ -6,6 +6,7 @@ import { Search, Sidebar, SidebarOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useThemeStore } from "@/stores/themeStore";
 import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
+import { CloudConnectivityBadge } from "@/components/layout/CloudConnectivityBadge";
 
 /** Must match `trafficLightPosition` / overlay titlebar inset in tauri.conf (macOS). */
 const MACOS_TRAFFIC_STRIP_PX = 72;
@@ -172,7 +173,8 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
         </button>
       </div>
 
-      <div data-tauri-drag-region className="flex shrink-0 items-center">
+      <div data-tauri-drag-region className="flex shrink-0 items-center gap-2">
+        <CloudConnectivityBadge />
         <img
           src={etapskyLogo}
           alt="Etapsky"

@@ -78,6 +78,7 @@ pub fn run() {
             commands::fs::read_sdf_file,
             commands::fs::get_file_metadata,
             commands::open::get_launch_sdf_paths,
+            commands::validator::validate_sdf_signature,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

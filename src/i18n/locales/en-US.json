@@ -1,7 +1,7 @@
 {
   "locale": {
     "en_US": "English (United States)",
-    "fr_FR": "Français (France)",
+    "fr_FR": "Fran\u00e7ais (France)",
     "de_DE": "Deutsch (Deutschland)"
   },
   "nav": {
@@ -16,18 +16,21 @@
   "header": {
     "hideSidebar": "Hide sidebar",
     "showSidebar": "Show sidebar",
-    "searchPlaceholder": "Search commands, navigation, documents…",
-    "searchShortcut": "Quick find"
+    "searchPlaceholder": "Search commands, navigation, documents\u2026",
+    "searchShortcut": "Quick find",
+    "cloudOnlineHint": "Online. Cloud sync status will appear here after sign-in.",
+    "cloudOfflineHint": "No network connection. Local files still work.",
+    "offlineShort": "Offline"
   },
   "commandPalette": {
     "title": "Command palette",
-    "inputPlaceholder": "Search or jump to…",
+    "inputPlaceholder": "Search or jump to\u2026",
     "empty": "No matching commands or documents.",
     "navigation": "Navigation",
     "actions": "Actions",
     "documents": "Recent documents",
     "openDocument": "Open",
-    "toggleTheme": "Cycle appearance (System → Light → Dark)",
+    "toggleTheme": "Cycle appearance (System \u2192 Light \u2192 Dark)",
     "goSettings": "Open settings"
   },
   "theme": {
@@ -35,7 +38,7 @@
     "system": "System",
     "light": "Light",
     "dark": "Dark",
-    "tooltip": "{{current}} · next: {{next}}"
+    "tooltip": "{{current}} \u00b7 next: {{next}}"
   },
   "error": {
     "title": "Error",
@@ -67,23 +70,26 @@
   },
   "document": {
     "back": "Back",
-    "loading": "Opening document…",
+    "loading": "Opening document\u2026",
     "errorTitle": "Could not open this SDF file",
     "pdfPreview": "PDF preview",
     "resizePanels": "Drag to resize panels",
     "downloadPdf": "Download PDF",
-    "downloadPdfSaving": "Saving…",
+    "downloadPdfSaving": "Saving\u2026",
     "downloadPdfError": "Could not save PDF",
     "downloadPdfSuccess": "PDF downloaded",
     "downloadSdf": "Download SDF",
-    "downloadSdfSaving": "Wrapping…",
+    "downloadSdfSaving": "Wrapping\u2026",
     "downloadSdfError": "Could not save SDF",
     "downloadSdfSuccess": "SDF saved",
     "savedAs": "Saved as {{file}}",
-    "plainPdfTitle": "PLAIN PDF — NO STRUCTURED DATA",
+    "plainPdfTitle": "PLAIN PDF \u2014 NO STRUCTURED DATA",
     "plainPdfDesc": "{{name}} is a plain PDF file. It does not contain a structured data layer (data.json, schema.json, meta.json). The visual layer is displayed on the left.",
     "plainPdfWrapTitle": "TO ADD STRUCTURED DATA",
-    "plainPdfNoSchema": "No schema defined."
+    "plainPdfNoSchema": "No schema defined.",
+    "signatureValid": "Signature: valid",
+    "signatureInvalid": "Signature: invalid",
+    "signatureUnsigned": "Signature: unsigned"
   },
   "dashboard": {
     "bannerAwaiting": "You have <highlight>{{count}} documents</highlight> awaiting action.",
@@ -110,7 +116,7 @@
     "title": "New Document",
     "documentType": "Document type",
     "generateSave": "Generate & Save",
-    "generating": "Generating…",
+    "generating": "Generating\u2026",
     "generateError": "Generation failed",
     "generateSuccess": "Document generated",
     "metaInfo": "Meta",

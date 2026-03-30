@@ -21,6 +21,7 @@ import { readSdfFile } from "@/lib/tauri/fs";
 import { openSdfOrPdf, savePdfAs, saveSdfAs } from "@/lib/tauri/dialog";
 import { useToast } from "@/components/notifications/ToastProvider";
 import { fileNameFromPath } from "@/lib/utils";
+import { validateSdfSignature, type SignatureStatus } from "@/lib/tauri/validator";
 
 type LoadState =
   | { status: "loading" }
@@ -29,6 +30,7 @@ type LoadState =
   | { status: "ready"; kind: "pdf"; fileLabel: string };
 
 type ReaderPanel = "data" | "info" | "schema" | "meta";
+type SignatureBadgeState = { status: SignatureStatus; reason?: string | null } | null;
 
 const PLAIN_PDF_META = {
   sdf_version: "—",
@@ -68,6 +70,7 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [panel, setPanel] = useState<ReaderPanel>("data");
   const [pdfSaving, setPdfSaving] = useState(false);
+  const [signature, setSignature] = useState<SignatureBadgeState>(null);
   const [rightPanelWidth, setRightPanelWidth] = useState(defaultRightPanelWidthPx);
   const [resizing, setResizing] = useState(false);
   const blobRef = useRef<string | null>(null);
@@ -220,6 +223,7 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
   useEffect(() => {
     let cancelled = false;
     setState({ status: "loading" });
+    setSignature(null);
     setPdfUrl(null);
     rawPdfBytesRef.current = null;
     if (blobRef.current) {
@@ -239,6 +243,7 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
           blobRef.current = u;
           setPdfUrl(u);
           setState({ status: "ready", kind: "pdf", fileLabel: fileNameFromPath(path) });
+          setSignature({ status: "unsigned", reason: "plain_pdf" });
           setPanel("info");
         } else {
           // SDF — parse to extract embedded PDF + structured data
@@ -249,6 +254,12 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
           blobRef.current = u;
           setPdfUrl(u);
           setState({ status: "ready", kind: "sdf", result, fileLabel: fileNameFromPath(path) });
+          try {
+            const sig = await validateSdfSignature(path);
+            if (!cancelled) setSignature(sig);
+          } catch {
+            if (!cancelled) setSignature({ status: "invalid", reason: "validator_error" });
+          }
           setPanel("data");
         }
       } catch (e) {
@@ -291,6 +302,22 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
         : "plain_pdf"
       : null;
 
+  const signatureBadgeLabel =
+    signature?.status === "valid"
+      ? t("document.signatureValid")
+      : signature?.status === "invalid"
+        ? t("document.signatureInvalid")
+        : signature?.status === "unsigned"
+          ? t("document.signatureUnsigned")
+          : null;
+
+  const signatureBadgeClass =
+    signature?.status === "valid"
+      ? "border-[--color-success] text-[--color-success]"
+      : signature?.status === "invalid"
+        ? "border-[--color-danger] text-[--color-danger]"
+        : "border-[--color-warning] text-[--color-warning]";
+
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-[--color-bg]">
       <header className="flex shrink-0 items-center gap-3 border-b border-[--color-border-subtle] px-4 py-2.5">
@@ -305,6 +332,13 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
             {headerBadge && (
               <span className="shrink-0 rounded-md border border-[--color-border-subtle] bg-[--color-surface-elevated] px-2 py-0.5 text-[10px] font-medium text-[--color-muted]">
                 {headerBadge}
+              </span>
+            )}
+            {signatureBadgeLabel && (
+              <span
+                className={`shrink-0 rounded-md border bg-[--color-surface-elevated] px-2 py-0.5 text-[10px] font-medium ${signatureBadgeClass}`}
+              >
+                {signatureBadgeLabel}
               </span>
             )}
             <div className="ml-auto flex shrink-0 items-center gap-2">

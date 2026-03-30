@@ -1,9 +1,20 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { create } from "zustand";
 import { createAuthEndpoints, type AuthUser, type LoginInput, type RegisterInput } from "@/lib/api/endpoints/auth";
+import type { ApiClientTokens } from "@/lib/api/client";
 import { deleteRefreshToken, getRefreshToken, setRefreshToken } from "@/lib/tauri/keychain";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || "https://api.etapsky.com";
+export const API_BASE_URL =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || "https://api.etapsky.com";
+
+/** Shared token getters for API clients (auth, documents, billing). */
+export function getApiClientTokens(): ApiClientTokens {
+  return {
+    getAccessToken: () => useAuthStore.getState().accessToken,
+    refreshAccessToken: () => useAuthStore.getState().refresh(),
+    clearSession: () => useAuthStore.getState()._setSignedOut(),
+  };
+}
 
 type AuthStatus = "booting" | "signed_out" | "signed_in";
 
@@ -19,11 +30,7 @@ type AuthState = {
   _setSignedOut: () => Promise<void>;
 };
 
-const authApi = createAuthEndpoints(API_BASE_URL, {
-  getAccessToken: () => useAuthStore.getState().accessToken,
-  refreshAccessToken: () => useAuthStore.getState().refresh(),
-  clearSession: () => useAuthStore.getState()._setSignedOut(),
-});
+const authApi = createAuthEndpoints(API_BASE_URL, getApiClientTokens());
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   status: "booting",

@@ -12,14 +12,15 @@
     "soon": "Soon",
     "settings": "Settings",
     "newDocument": "New Document",
-    "openAccountSettings": "Open account and settings"
+    "openAccountSettings": "Open account and settings",
+    "syncing": "Syncing\u2026"
   },
   "header": {
     "hideSidebar": "Hide sidebar",
     "showSidebar": "Show sidebar",
     "searchPlaceholder": "Search commands, navigation, documents\u2026",
     "searchShortcut": "Quick find",
-    "cloudOnlineHint": "Online. Cloud sync status will appear here after sign-in.",
+    "cloudOnlineHint": "Online. Cloud lists and uploads use your signed-in session.",
     "cloudOfflineHint": "No network connection. Local files still work.",
     "offlineShort": "Offline"
   },
@@ -67,7 +68,17 @@
     "license": "License",
     "documentation": "Documentation",
     "enabled": "Enabled",
-    "registered": "Registered"
+    "registered": "Registered",
+    "billingSection": "Plan & usage",
+    "billingLoading": "Loading billing\u2026",
+    "billingPriceLine": "${{price}}/month",
+    "billingPeriodEnd": "Renews {{date}}",
+    "billingOpenPortal": "Open billing in browser",
+    "billingUsageTitle": "Usage this billing period",
+    "billingMeterDocuments": "Documents",
+    "billingMeterApi": "API calls",
+    "billingMeterStorage": "Storage",
+    "billingUsageHint": "Invoices, payment method, and upgrades are managed in the web portal."
   },
   "document": {
     "back": "Back",
@@ -91,6 +102,33 @@
     "signatureValid": "Signature: valid",
     "signatureInvalid": "Signature: invalid",
     "signatureUnsigned": "Signature: unsigned"
+  },
+  "cloud": {
+    "title": "Cloud sync",
+    "description": "List, upload, and download SDF files stored for your tenant on Etapsky Cloud. Conflicts follow a server-wins policy (MVP).",
+    "upload": "Upload SDF",
+    "refresh": "Refresh",
+    "empty": "No cloud documents yet. Upload a .sdf file to get started.",
+    "loading": "Loading cloud documents\u2026",
+    "colName": "Name",
+    "colSize": "Size",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "download": "Download",
+    "delete": "Delete",
+    "uploadWrongType": "Only .sdf files can be uploaded.",
+    "uploadSuccess": "{{name}} uploaded",
+    "uploadFailed": "Upload failed",
+    "downloadSuccess": "{{name}} saved",
+    "downloadFailed": "Download failed",
+    "deleteConfirm": "Delete \"{{name}}\" from the cloud? This cannot be undone.",
+    "deleteSuccess": "{{name}} deleted",
+    "deleteFailed": "Delete failed",
+    "quotaDocuments": "Documents (this period)",
+    "quotaStorage": "Storage",
+    "quotaValueDocs": "{{used}} / {{limit}}",
+    "quotaStorageLine": "{{used}} / {{limit}}",
+    "quotaStorageLimitGb": "{{gb}} GB"
   },
   "dashboard": {
     "bannerAwaiting": "You have <highlight>{{count}} documents</highlight> awaiting action.",

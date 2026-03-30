@@ -12,14 +12,15 @@
     "soon": "Bient\u00f4t",
     "settings": "Param\u00e8tres",
     "newDocument": "Nouveau document",
-    "openAccountSettings": "Ouvrir le compte et les param\u00e8tres"
+    "openAccountSettings": "Ouvrir le compte et les param\u00e8tres",
+    "syncing": "Synchronisation\u2026"
   },
   "header": {
     "hideSidebar": "Masquer la barre lat\u00e9rale",
     "showSidebar": "Afficher la barre lat\u00e9rale",
     "searchPlaceholder": "Rechercher commandes, navigation, documents\u2026",
     "searchShortcut": "Recherche rapide",
-    "cloudOnlineHint": "En ligne. L\u2019\u00e9tat de synchronisation cloud appara\u00eetra ici apr\u00e8s connexion.",
+    "cloudOnlineHint": "En ligne. Les listes et envois cloud utilisent votre session connect\u00e9e.",
     "cloudOfflineHint": "Pas de connexion r\u00e9seau. Les fichiers locaux restent utilisables.",
     "offlineShort": "Hors ligne"
   },
@@ -67,7 +68,17 @@
     "license": "Licence",
     "documentation": "Documentation",
     "enabled": "Activ\u00e9",
-    "registered": "Enregistr\u00e9"
+    "registered": "Enregistr\u00e9",
+    "billingSection": "Forfait et utilisation",
+    "billingLoading": "Chargement de la facturation\u2026",
+    "billingPriceLine": "${{price}}/mois",
+    "billingPeriodEnd": "Renouvellement le {{date}}",
+    "billingOpenPortal": "Ouvrir la facturation dans le navigateur",
+    "billingUsageTitle": "Utilisation sur cette p\u00e9riode de facturation",
+    "billingMeterDocuments": "Documents",
+    "billingMeterApi": "Appels API",
+    "billingMeterStorage": "Stockage",
+    "billingUsageHint": "Factures, moyen de paiement et surclassements se g\u00e8rent dans le portail web."
   },
   "document": {
     "back": "Retour",
@@ -91,6 +102,33 @@
     "signatureValid": "Signature : valide",
     "signatureInvalid": "Signature : invalide",
     "signatureUnsigned": "Signature : non signee"
+  },
+  "cloud": {
+    "title": "Synchronisation cloud",
+    "description": "Lister, t\u00e9l\u00e9verser et t\u00e9l\u00e9charger les fichiers SDF de votre tenant sur Etapsky Cloud. Conflits : le serveur l\u2019emporte (MVP).",
+    "upload": "T\u00e9l\u00e9verser un SDF",
+    "refresh": "Actualiser",
+    "empty": "Aucun document cloud pour l\u2019instant. T\u00e9l\u00e9versez un fichier .sdf.",
+    "loading": "Chargement des documents cloud\u2026",
+    "colName": "Nom",
+    "colSize": "Taille",
+    "colStatus": "Statut",
+    "colActions": "Actions",
+    "download": "T\u00e9l\u00e9charger",
+    "delete": "Supprimer",
+    "uploadWrongType": "Seuls les fichiers .sdf peuvent \u00eatre t\u00e9l\u00e9vers\u00e9s.",
+    "uploadSuccess": "{{name}} t\u00e9l\u00e9vers\u00e9",
+    "uploadFailed": "\u00c9chec du t\u00e9l\u00e9versement",
+    "downloadSuccess": "{{name}} enregistr\u00e9",
+    "downloadFailed": "\u00c9chec du t\u00e9l\u00e9chargement",
+    "deleteConfirm": "Supprimer \u00ab {{name}} \u00bb du cloud ? Action irr\u00e9versible.",
+    "deleteSuccess": "{{name}} supprim\u00e9",
+    "deleteFailed": "\u00c9chec de la suppression",
+    "quotaDocuments": "Documents (cette p\u00e9riode)",
+    "quotaStorage": "Stockage",
+    "quotaValueDocs": "{{used}} / {{limit}}",
+    "quotaStorageLine": "{{used}} / {{limit}}",
+    "quotaStorageLimitGb": "{{gb}} Go"
   },
   "dashboard": {
     "bannerAwaiting": "Il vous reste <highlight>{{count}} documents</highlight> \u00e0 traiter.",

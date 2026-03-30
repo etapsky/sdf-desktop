@@ -12,14 +12,15 @@
     "soon": "Demn\u00e4chst",
     "settings": "Einstellungen",
     "newDocument": "Neues Dokument",
-    "openAccountSettings": "Konto und Einstellungen \u00f6ffnen"
+    "openAccountSettings": "Konto und Einstellungen \u00f6ffnen",
+    "syncing": "Synchronisiert\u2026"
   },
   "header": {
     "hideSidebar": "Seitenleiste ausblenden",
     "showSidebar": "Seitenleiste einblenden",
     "searchPlaceholder": "Befehle, Navigation, Dokumente durchsuchen\u2026",
     "searchShortcut": "Schnellsuche",
-    "cloudOnlineHint": "Online. Cloud-Sync-Status erscheint hier nach der Anmeldung.",
+    "cloudOnlineHint": "Online. Cloud-Listen und Uploads nutzen Ihre angemeldete Sitzung.",
     "cloudOfflineHint": "Keine Netzwerkverbindung. Lokale Dateien funktionieren weiterhin.",
     "offlineShort": "Offline"
   },
@@ -67,7 +68,17 @@
     "license": "Lizenz",
     "documentation": "Dokumentation",
     "enabled": "Aktiv",
-    "registered": "Registriert"
+    "registered": "Registriert",
+    "billingSection": "Plan & Nutzung",
+    "billingLoading": "Abrechnung wird geladen\u2026",
+    "billingPriceLine": "${{price}}/Monat",
+    "billingPeriodEnd": "Verl\u00e4ngert am {{date}}",
+    "billingOpenPortal": "Abrechnung im Browser",
+    "billingUsageTitle": "Nutzung in diesem Abrechnungszeitraum",
+    "billingMeterDocuments": "Dokumente",
+    "billingMeterApi": "API-Aufrufe",
+    "billingMeterStorage": "Speicher",
+    "billingUsageHint": "Rechnungen, Zahlungsmittel und Upgrades werden im Web-Portal verwaltet."
   },
   "document": {
     "back": "Zur\u00fcck",
@@ -91,6 +102,33 @@
     "signatureValid": "Signatur: gueltig",
     "signatureInvalid": "Signatur: ungueltig",
     "signatureUnsigned": "Signatur: nicht signiert"
+  },
+  "cloud": {
+    "title": "Cloud-Sync",
+    "description": "SDF-Dateien Ihres Mandanten auf Etapsky Cloud auflisten, hochladen und herunterladen. Konflikte: Server gewinnt (MVP).",
+    "upload": "SDF hochladen",
+    "refresh": "Aktualisieren",
+    "empty": "Noch keine Cloud-Dokumente. Laden Sie eine .sdf-Datei hoch.",
+    "loading": "Cloud-Dokumente werden geladen\u2026",
+    "colName": "Name",
+    "colSize": "Gr\u00f6\u00dfe",
+    "colStatus": "Status",
+    "colActions": "Aktionen",
+    "download": "Herunterladen",
+    "delete": "L\u00f6schen",
+    "uploadWrongType": "Es k\u00f6nnen nur .sdf-Dateien hochgeladen werden.",
+    "uploadSuccess": "{{name}} hochgeladen",
+    "uploadFailed": "Upload fehlgeschlagen",
+    "downloadSuccess": "{{name}} gespeichert",
+    "downloadFailed": "Download fehlgeschlagen",
+    "deleteConfirm": "\u201e{{name}}\u201c aus der Cloud l\u00f6schen? Dies kann nicht r\u00fcckg\u00e4ngig gemacht werden.",
+    "deleteSuccess": "{{name}} gel\u00f6scht",
+    "deleteFailed": "L\u00f6schen fehlgeschlagen",
+    "quotaDocuments": "Dokumente (dieser Zeitraum)",
+    "quotaStorage": "Speicher",
+    "quotaValueDocs": "{{used}} / {{limit}}",
+    "quotaStorageLine": "{{used}} / {{limit}}",
+    "quotaStorageLimitGb": "{{gb}} GB"
   },
   "dashboard": {
     "bannerAwaiting": "Sie haben <highlight>{{count}} Dokumente</highlight>, die noch bearbeitet werden m\u00fcssen.",

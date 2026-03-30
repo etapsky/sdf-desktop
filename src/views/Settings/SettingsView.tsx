@@ -8,6 +8,7 @@ import { useLocaleStore, APP_LOCALES, type AppLocale } from "@/stores/localeStor
 import { localeToTranslationKey } from "@/i18n/localeLabel";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { SettingsBillingSection } from "@/views/Settings/SettingsBillingSection";
 
 const DOCS_URL = "https://docs.etapsky.com";
 
@@ -129,6 +130,12 @@ export function SettingsView() {
               </SettingRow>
             )}
           </Section>
+
+          {isAuthenticated && (
+            <div className="pt-1">
+              <SettingsBillingSection />
+            </div>
+          )}
 
           <Section title={t("settings.application")}>
             <SettingRow label={t("settings.autoUpdate")} description={t("settings.autoUpdateDesc")}>

@@ -4,10 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNetworkOnline } from "@/hooks/useNetworkOnline";
 
 /**
- * Global connectivity / future cloud sync slot.
- *
- * Today: online vs offline (`navigator.onLine`). Faz 2: replace with real sync
- * states (syncing / synced / error) driven by API + `useCloudSync`.
+ * Network connectivity only (online / offline). Cloud sync activity is shown on the Cloud nav item, not here.
  */
 export function CloudConnectivityBadge() {
   const { t } = useTranslation();

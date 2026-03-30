@@ -7,6 +7,7 @@ import {
   FileText,
   Settings,
   Cloud,
+  Loader2,
   Sun,
   Moon,
   Monitor,
@@ -19,19 +20,22 @@ interface NavItemProps {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
-  badge?: string;
+  /** Optional status (e.g. sync); supports string or nodes (spinner + label). */
+  badge?: React.ReactNode;
+  /** Collapsed strip: override native tooltip (e.g. include “Syncing”). */
+  collapsedTitle?: string;
   collapsed?: boolean;
   onClick?: () => void;
 }
 
-function NavItem({ icon, label, active, badge, collapsed, onClick }: NavItemProps) {
+function NavItem({ icon, label, active, badge, collapsedTitle, collapsed, onClick }: NavItemProps) {
   return (
     <button
       onClick={onClick}
-      title={collapsed ? label : undefined}
+      title={collapsed ? (collapsedTitle ?? label) : undefined}
       style={{ cursor: "pointer" }}
       className={cn(
-        "relative flex w-full items-center rounded-md transition-colors duration-100",
+        "relative flex w-full items-center overflow-visible rounded-md transition-colors duration-100",
         collapsed ? "justify-center px-0 py-2 h-9" : "gap-2.5 px-2.5 py-1.5",
         active
           ? "bg-[var(--color-sidebar-active)] text-[var(--color-fg)] font-medium"
@@ -50,16 +54,8 @@ function NavItem({ icon, label, active, badge, collapsed, onClick }: NavItemProp
       {!collapsed && (
         <>
           <span className="flex-1 text-left truncate text-sm">{label}</span>
-          {badge && (
-            <span
-              style={{
-                fontSize: 10,
-                background: "var(--color-border)",
-                color: "var(--color-muted)",
-                borderRadius: 4,
-                padding: "1px 6px",
-              }}
-            >
+          {badge != null && (
+            <span className="inline-flex max-w-[min(100px,40%)] shrink-0 items-center gap-1 rounded border border-[var(--color-border-subtle)] bg-[var(--color-surface-elevated)] px-1.5 py-0.5 text-[10px] font-medium leading-none text-[var(--color-fg)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
               {badge}
             </span>
           )}
@@ -115,10 +111,17 @@ function ThemeToggle({ collapsed }: { collapsed: boolean }) {
 interface SidebarProps {
   activeView?: string;
   collapsed?: boolean;
+  /** True while cloud list/usage queries or mutations are in flight. */
+  cloudSyncing?: boolean;
   onNavigate?: (view: string) => void;
 }
 
-export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigate }: SidebarProps) {
+export function Sidebar({
+  activeView = "dashboard",
+  collapsed = false,
+  cloudSyncing = false,
+  onNavigate,
+}: SidebarProps) {
   const { t } = useTranslation();
   const { resolved } = useThemeStore();
   const { user } = useAuth();
@@ -159,10 +162,30 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
           onClick={nav("documents")}
         />
         <NavItem
-          icon={<Cloud className="h-4 w-4" />}
+          icon={
+            <span className="relative inline-flex">
+              <Cloud className="h-4 w-4" />
+              {cloudSyncing && collapsed && (
+                <Loader2
+                  className="absolute -right-1 -top-0.5 h-2.5 w-2.5 text-[var(--color-primary)] animate-spin"
+                  aria-hidden
+                />
+              )}
+            </span>
+          }
           label={t("nav.cloudSync")}
           active={activeView === "cloud"}
-          badge={collapsed ? undefined : t("nav.soon")}
+          collapsedTitle={
+            cloudSyncing ? `${t("nav.cloudSync")} — ${t("nav.syncing")}` : undefined
+          }
+          badge={
+            cloudSyncing && !collapsed ? (
+              <>
+                <Loader2 className="h-3 w-3 shrink-0 animate-spin text-[var(--color-primary)]" aria-hidden />
+                <span className="text-[var(--color-muted-fg)]">{t("nav.syncing")}</span>
+              </>
+            ) : undefined
+          }
           collapsed={collapsed}
           onClick={nav("cloud")}
         />

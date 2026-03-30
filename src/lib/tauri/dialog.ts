@@ -43,3 +43,28 @@ export async function saveSdfAs(defaultName: string): Promise<string | null> {
   }
 }
 
+function isTauriWebView(): boolean {
+  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+}
+
+/** Save `.sdf` bytes via native save dialog, or trigger a browser download when not in Tauri. */
+export async function saveSdfArrayBuffer(data: ArrayBuffer, defaultFilename: string): Promise<void> {
+  if (isTauriWebView()) {
+    const path = await saveSdfAs(defaultFilename);
+    if (!path) return;
+    const { writeFile } = await import("@tauri-apps/plugin-fs");
+    await writeFile(path, new Uint8Array(data));
+    return;
+  }
+  const blob = new Blob([data], { type: "application/vnd.sdf" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = defaultFilename;
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+}
+

@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useCallback, useEffect, useState } from "react";
+import { useIsFetching } from "@tanstack/react-query";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { DocumentTabBar } from "./DocumentTabBar";
@@ -9,6 +10,7 @@ import { DocumentReaderView } from "@/views/Document/DocumentReaderView";
 import { SettingsView } from "@/views/Settings/SettingsView";
 import { ProducerView } from "@/views/Producer/ProducerView";
 import { AuthView } from "@/views/Auth/AuthView";
+import { CloudSyncView } from "@/views/Cloud/CloudSyncView";
 import { useSdfOpenListener } from "@/hooks/useSdfOpenListener";
 import { useThemeStore } from "@/stores/themeStore";
 import { useDocumentStore } from "@/stores/documentStore";
@@ -22,6 +24,7 @@ export function AppShell() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const { resolved } = useThemeStore();
   const { isAuthenticated, isLoading, init } = useAuth();
+  const cloudSyncing = useIsFetching({ queryKey: ["cloud"] }) > 0;
 
   const activePath = useDocumentStore((s) => s.activePath);
   const openTabs = useDocumentStore((s) => s.openTabs);
@@ -76,6 +79,8 @@ export function AppShell() {
     switch (activeView) {
       case "settings":
         return <SettingsView />;
+      case "cloud":
+        return <CloudSyncView />;
       case "new":
         return <ProducerView onClose={() => navigate("dashboard")} />;
       default:
@@ -118,6 +123,7 @@ export function AppShell() {
           <Sidebar
             activeView={activeView}
             collapsed={!sidebarOpen}
+            cloudSyncing={isAuthenticated && cloudSyncing}
             onNavigate={(v) => navigate(v as View)}
           />
         )}

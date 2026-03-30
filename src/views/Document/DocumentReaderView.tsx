@@ -1,6 +1,5 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { open, save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { useTranslation } from "react-i18next";
 import { packContainer, parseSDF, SDFError, SDF_VERSION, type SDFParseResult } from "@etapsky/sdf-kit";
@@ -19,6 +18,8 @@ import { MetaCard } from "@/components/reader/MetaCard";
 import { ReaderSchemaPanel } from "@/components/reader/ReaderSchemaPanel";
 import { ReaderRawPanel } from "@/components/reader/ReaderRawPanel";
 import { readSdfFile } from "@/lib/tauri/fs";
+import { openSdfOrPdf, savePdfAs, saveSdfAs } from "@/lib/tauri/dialog";
+import { useToast } from "@/components/notifications/ToastProvider";
 
 type LoadState =
   | { status: "loading" }
@@ -66,6 +67,7 @@ interface DocumentReaderViewProps {
 
 export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReaderViewProps) {
   const { t } = useTranslation();
+  const { notify } = useToast();
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [panel, setPanel] = useState<ReaderPanel>("data");
@@ -159,21 +161,20 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
       if (state.kind === "sdf") {
         // Export embedded PDF from SDF
         const defaultName = state.fileLabel.replace(/\.sdf$/i, "") + ".pdf";
-        const savePath = await save({
-          defaultPath: defaultName,
-          filters: [{ name: "PDF", extensions: ["pdf"] }],
-        });
+        const savePath = await savePdfAs(defaultName);
         if (!savePath) return;
         await writeFile(savePath, state.result.pdfBytes);
+        notify({
+          variant: "success",
+          title: t("document.downloadPdfSuccess"),
+          message: t("document.savedAs", { file: fileNameFromPath(savePath) }),
+        });
       } else {
         // Wrap plain PDF into a minimal SDF container
         const rawBytes = rawPdfBytesRef.current;
         if (!rawBytes) return;
         const defaultName = state.fileLabel.replace(/\.pdf$/i, "") + ".sdf";
-        const savePath = await save({
-          defaultPath: defaultName,
-          filters: [{ name: "SDF", extensions: ["sdf"] }],
-        });
+        const savePath = await saveSdfAs(defaultName);
         if (!savePath) return;
         const meta = {
           sdf_version: SDF_VERSION,
@@ -189,24 +190,28 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
           metaJson: JSON.stringify(meta, null, 2),
         });
         await writeFile(savePath, sdfBytes);
+        notify({
+          variant: "success",
+          title: t("document.downloadSdfSuccess"),
+          message: t("document.savedAs", { file: fileNameFromPath(savePath) }),
+        });
       }
-    } catch {
-      // user dismissed or write failed — no-op
+    } catch (e) {
+      // save dialog cancel => returns `null`, so only real failures land here.
+      const reason = e instanceof Error ? e.message : String(e);
+      notify({
+        variant: "error",
+        title: state.kind === "sdf" ? t("document.downloadPdfError") : t("document.downloadSdfError"),
+        message: reason,
+      });
     } finally {
       setPdfSaving(false);
     }
-  }, [state, pdfSaving]);
+  }, [state, pdfSaving, notify, t]);
 
   const handleOpenFile = useCallback(async () => {
-    try {
-      const selected = await open({
-        multiple: false,
-        filters: [{ name: "SDF / PDF", extensions: ["sdf", "pdf"] }],
-      });
-      if (typeof selected === "string" && selected) onOpenFile?.(selected);
-    } catch {
-      /* dialog cancelled */
-    }
+    const selected = await openSdfOrPdf();
+    if (selected) onOpenFile?.(selected);
   }, [onOpenFile]);
 
   const onResizeDoubleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {

@@ -1,7 +1,6 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useCallback, useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { open } from "@tauri-apps/plugin-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import sdfIcon from "@/assets/sdf_icon.svg";
+import { openSdfOrPdf } from "@/lib/tauri/dialog";
 
 interface DashboardViewProps {
   onOpenSdfFile?: (path: string) => void;
@@ -110,15 +110,8 @@ export function DashboardView({ onOpenSdfFile, onNewDocument }: DashboardViewPro
 
   const handleOpenFile = useCallback(async () => {
     if (!onOpenSdfFile) return;
-    try {
-      const selected = await open({
-        multiple: false,
-        filters: [{ name: "SDF / PDF", extensions: ["sdf", "pdf"] }],
-      });
-      if (typeof selected === "string" && selected) onOpenSdfFile(selected);
-    } catch {
-      /* dialog cancelled or not in Tauri */
-    }
+    const selected = await openSdfOrPdf();
+    if (selected) onOpenSdfFile(selected);
   }, [onOpenSdfFile]);
 
   const greetingText = useMemo(() => {

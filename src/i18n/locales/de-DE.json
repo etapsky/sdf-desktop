@@ -37,6 +37,12 @@
     "dark": "Dunkel",
     "tooltip": "{{current}} · als Nächstes: {{next}}"
   },
+  "error": {
+    "title": "Fehler",
+    "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+    "reload": "Neu laden",
+    "reloadDesc": "Bitte laden Sie die Anwendung neu."
+  },
   "settings": {
     "title": "Einstellungen",
     "language": "Sprache",
@@ -68,8 +74,12 @@
     "downloadPdf": "PDF herunterladen",
     "downloadPdfSaving": "Wird gespeichert…",
     "downloadPdfError": "PDF konnte nicht gespeichert werden",
+    "downloadPdfSuccess": "PDF heruntergeladen",
     "downloadSdf": "SDF herunterladen",
     "downloadSdfSaving": "Wird verpackt…",
+    "downloadSdfError": "SDF konnte nicht gespeichert werden",
+    "downloadSdfSuccess": "SDF gespeichert",
+    "savedAs": "Gespeichert als {{file}}",
     "plainPdfTitle": "PLAIN PDF — KEINE STRUKTURIERTEN DATEN",
     "plainPdfDesc": "{{name}} ist eine einfache PDF-Datei. Sie enthält keine strukturierte Datenschicht (data.json, schema.json, meta.json). Die visuelle Ebene wird links angezeigt.",
     "plainPdfWrapTitle": "STRUKTURIERTE DATEN HINZUFÜGEN",
@@ -99,6 +109,7 @@
     "generateSave": "Generieren & Speichern",
     "generating": "Wird generiert…",
     "generateError": "Generierung fehlgeschlagen",
+    "generateSuccess": "Dokument erstellt",
     "metaInfo": "Meta",
     "sdfContents": "SDF-Dateiinhalt"
   },

@@ -37,6 +37,12 @@
     "dark": "Dark",
     "tooltip": "{{current}} · next: {{next}}"
   },
+  "error": {
+    "title": "Error",
+    "unexpected": "An unexpected error occurred.",
+    "reload": "Reload",
+    "reloadDesc": "Please reload the application."
+  },
   "settings": {
     "title": "Settings",
     "language": "Language",
@@ -68,8 +74,12 @@
     "downloadPdf": "Download PDF",
     "downloadPdfSaving": "Saving…",
     "downloadPdfError": "Could not save PDF",
+    "downloadPdfSuccess": "PDF downloaded",
     "downloadSdf": "Download SDF",
     "downloadSdfSaving": "Wrapping…",
+    "downloadSdfError": "Could not save SDF",
+    "downloadSdfSuccess": "SDF saved",
+    "savedAs": "Saved as {{file}}",
     "plainPdfTitle": "PLAIN PDF — NO STRUCTURED DATA",
     "plainPdfDesc": "{{name}} is a plain PDF file. It does not contain a structured data layer (data.json, schema.json, meta.json). The visual layer is displayed on the left.",
     "plainPdfWrapTitle": "TO ADD STRUCTURED DATA",
@@ -99,6 +109,7 @@
     "generateSave": "Generate & Save",
     "generating": "Generating…",
     "generateError": "Generation failed",
+    "generateSuccess": "Document generated",
     "metaInfo": "Meta",
     "sdfContents": "SDF file contents"
   },

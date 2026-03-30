@@ -1,6 +1,5 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { buildSDF } from "@etapsky/sdf-kit/producer";
 import { useTranslation } from "react-i18next";
@@ -10,6 +9,8 @@ import { ALL_DOC_CONFIGS, type ProduceState } from "@/schemas";
 import { ProducerDocTypeSelector } from "./ProducerDocTypeSelector";
 import { ProducerFormRenderer }    from "./ProducerFormRenderer";
 import { ProducerJsonPreview }     from "./ProducerJsonPreview";
+import { saveSdfAs } from "@/lib/tauri/dialog";
+import { useToast } from "@/components/notifications/ToastProvider";
 
 // ── Panel width helpers (mirrors DocumentReaderView) ──────────────────────────
 
@@ -33,6 +34,7 @@ interface Props {
 
 export function ProducerView({ onClose }: Props) {
   const { t } = useTranslation();
+  const { notify } = useToast();
 
   const [docTypeId, setDocTypeId] = useState<string>("purchase-order");
   const [values,    setValues]    = useState<Record<string, string>>({});
@@ -94,10 +96,7 @@ export function ProducerView({ onClose }: Props) {
       });
 
       const defaultName = `${config.id}-${new Date().toISOString().slice(0, 10)}.sdf`;
-      const savePath = await save({
-        defaultPath: defaultName,
-        filters: [{ name: "SDF", extensions: ["sdf"] }],
-      });
+      const savePath = await saveSdfAs(defaultName);
       if (!savePath) {
         setGenState({ status: "idle" });
         return;
@@ -107,10 +106,20 @@ export function ProducerView({ onClose }: Props) {
       const parts    = savePath.split(/[/\\]/);
       const filename = parts[parts.length - 1] || defaultName;
       setGenState({ status: "done", filename });
+      notify({
+        variant: "success",
+        title: t("producer.generateSuccess"),
+        message: t("document.savedAs", { file: filename }),
+      });
     } catch (err) {
       setGenState({ status: "error", message: err instanceof Error ? err.message : String(err) });
+      notify({
+        variant: "error",
+        title: t("producer.generateError"),
+        message: err instanceof Error ? err.message : String(err),
+      });
     }
-  }, [config, values]);
+  }, [config, values, notify, t]);
 
   // ── Resize drag handlers ──────────────────────────────────────────────────
 

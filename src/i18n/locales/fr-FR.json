@@ -37,6 +37,12 @@
     "dark": "Sombre",
     "tooltip": "{{current}} · suivant : {{next}}"
   },
+  "error": {
+    "title": "Erreur",
+    "unexpected": "Une erreur inattendue est survenue.",
+    "reload": "Recharger",
+    "reloadDesc": "Veuillez recharger l’application."
+  },
   "settings": {
     "title": "Paramètres",
     "language": "Langue",
@@ -68,8 +74,12 @@
     "downloadPdf": "Télécharger le PDF",
     "downloadPdfSaving": "Enregistrement…",
     "downloadPdfError": "Impossible d'enregistrer le PDF",
+    "downloadPdfSuccess": "PDF téléchargé",
     "downloadSdf": "Télécharger le SDF",
     "downloadSdfSaving": "Encapsulation…",
+    "downloadSdfError": "Impossible d'enregistrer le SDF",
+    "downloadSdfSuccess": "SDF enregistré",
+    "savedAs": "Enregistré sous {{file}}",
     "plainPdfTitle": "PDF SIMPLE — AUCUNE DONNÉE STRUCTURÉE",
     "plainPdfDesc": "{{name}} est un fichier PDF simple. Il ne contient pas de couche de données structurées (data.json, schema.json, meta.json). La couche visuelle est affichée à gauche.",
     "plainPdfWrapTitle": "AJOUTER DES DONNÉES STRUCTURÉES",
@@ -99,6 +109,7 @@
     "generateSave": "Générer et enregistrer",
     "generating": "Génération…",
     "generateError": "Échec de la génération",
+    "generateSuccess": "Document généré",
     "metaInfo": "Méta",
     "sdfContents": "Contenu du fichier SDF"
   },

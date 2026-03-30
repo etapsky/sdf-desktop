@@ -7,6 +7,9 @@ dist/
 src-tauri/target/
 src-tauri/gen/
 
+# Tauri updater signing (never commit private key)
+src-tauri/updater.key
+
 # Tauri build artifacts
 *.dmg
 *.msi

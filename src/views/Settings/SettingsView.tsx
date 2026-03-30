@@ -1,5 +1,8 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getVersion } from "@tauri-apps/api/app";
+import { Loader2 } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Settings } from "lucide-react";
@@ -9,6 +12,8 @@ import { localeToTranslationKey } from "@/i18n/localeLabel";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { SettingsBillingSection } from "@/views/Settings/SettingsBillingSection";
+import { useUpdater } from "@/components/updater/UpdaterProvider";
+import { Button } from "@/components/ui/button";
 
 const DOCS_URL = "https://docs.etapsky.com";
 
@@ -59,6 +64,14 @@ export function SettingsView() {
   const { t } = useTranslation();
   const { locale, setLocale } = useLocaleStore();
   const { user, logout, isAuthenticated } = useAuth();
+  const { checkForUpdatesManual, checkingManual } = useUpdater();
+  const [appVersion, setAppVersion] = useState<string>("…");
+
+  useEffect(() => {
+    void getVersion()
+      .then(setAppVersion)
+      .catch(() => setAppVersion("—"));
+  }, []);
   const apiHost = (() => {
     try {
       return new URL((import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || "https://api.etapsky.com").host;
@@ -139,7 +152,20 @@ export function SettingsView() {
 
           <Section title={t("settings.application")}>
             <SettingRow label={t("settings.autoUpdate")} description={t("settings.autoUpdateDesc")}>
-              <Badge variant="success">{t("settings.enabled")}</Badge>
+              <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+                <Badge variant="success">{t("settings.enabled")}</Badge>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="gap-1.5"
+                  disabled={checkingManual}
+                  onClick={() => void checkForUpdatesManual()}
+                >
+                  {checkingManual ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
+                  {checkingManual ? t("updater.checking") : t("updater.checkNow")}
+                </Button>
+              </div>
             </SettingRow>
             <SettingRow
               label={t("settings.fileAssociation")}
@@ -151,7 +177,9 @@ export function SettingsView() {
 
           <Section title={t("settings.about")}>
             <SettingRow label={t("settings.version")}>
-              <Badge variant="secondary">0.1.0</Badge>
+              <Badge variant="secondary" className="font-mono text-xs">
+                {appVersion}
+              </Badge>
             </SettingRow>
             <SettingRow label={t("settings.sdfFormat")}>
               <span className="text-sm text-[--color-muted]">Spec v1.0</span>

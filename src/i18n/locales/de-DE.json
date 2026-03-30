@@ -42,6 +42,19 @@
     "dark": "Dunkel",
     "tooltip": "{{current}} \u00b7 als N\u00e4chstes: {{next}}"
   },
+  "updater": {
+    "title": "Update verf\u00fcgbar",
+    "subtitle": "Version {{version}} ist verf\u00fcgbar (Sie nutzen {{current}}).",
+    "downloading": "Update wird heruntergeladen\u2026",
+    "later": "Sp\u00e4ter",
+    "installRestart": "Installieren und neu starten",
+    "checking": "Pr\u00fcfung\u2026",
+    "checkNow": "Jetzt pr\u00fcfen",
+    "noUpdateTitle": "Bereits aktuell",
+    "noUpdateBody": "Etapsky nutzt bereits die neueste Version dieses Kanals.",
+    "checkFailedTitle": "Update-Pr\u00fcfung fehlgeschlagen",
+    "installFailedTitle": "Update konnte nicht installiert werden"
+  },
   "error": {
     "title": "Fehler",
     "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",

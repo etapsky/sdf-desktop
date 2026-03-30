@@ -42,6 +42,19 @@
     "dark": "Sombre",
     "tooltip": "{{current}} \u00b7 suivant : {{next}}"
   },
+  "updater": {
+    "title": "Mise \u00e0 jour disponible",
+    "subtitle": "La version {{version}} est disponible (vous \u00eates en {{current}}).",
+    "downloading": "T\u00e9l\u00e9chargement de la mise \u00e0 jour\u2026",
+    "later": "Plus tard",
+    "installRestart": "Installer et red\u00e9marrer",
+    "checking": "V\u00e9rification\u2026",
+    "checkNow": "V\u00e9rifier",
+    "noUpdateTitle": "Vous \u00eates \u00e0 jour",
+    "noUpdateBody": "Etapsky ex\u00e9cute d\u00e9j\u00e0 la derni\u00e8re version de ce canal.",
+    "checkFailedTitle": "\u00c9chec de la v\u00e9rification",
+    "installFailedTitle": "Impossible d\u2019installer la mise \u00e0 jour"
+  },
   "error": {
     "title": "Erreur",
     "unexpected": "Une erreur inattendue est survenue.",

@@ -42,6 +42,19 @@
     "dark": "Dark",
     "tooltip": "{{current}} \u00b7 next: {{next}}"
   },
+  "updater": {
+    "title": "Update available",
+    "subtitle": "Version {{version}} is available (you are on {{current}}).",
+    "downloading": "Downloading update\u2026",
+    "later": "Not now",
+    "installRestart": "Install and restart",
+    "checking": "Checking\u2026",
+    "checkNow": "Check now",
+    "noUpdateTitle": "You're up to date",
+    "noUpdateBody": "Etapsky is already running the latest release for this channel.",
+    "checkFailedTitle": "Update check failed",
+    "installFailedTitle": "Could not install update"
+  },
   "error": {
     "title": "Error",
     "unexpected": "An unexpected error occurred.",

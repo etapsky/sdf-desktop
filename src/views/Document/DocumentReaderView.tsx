@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Download,
+  FileSignature,
   FileText,
   FolderOpen,
   GripVertical,
@@ -22,6 +23,7 @@ import { openSdfOrPdf, savePdfAs, saveSdfAs } from "@/lib/tauri/dialog";
 import { useToast } from "@/components/notifications/ToastProvider";
 import { fileNameFromPath } from "@/lib/utils";
 import { validateSdfSignature, type SignatureStatus } from "@/lib/tauri/validator";
+import { SignSdfDialog } from "@/components/sign/SignSdfDialog";
 
 type LoadState =
   | { status: "loading" }
@@ -71,6 +73,7 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
   const [panel, setPanel] = useState<ReaderPanel>("data");
   const [pdfSaving, setPdfSaving] = useState(false);
   const [signature, setSignature] = useState<SignatureBadgeState>(null);
+  const [signOpen, setSignOpen] = useState(false);
   const [rightPanelWidth, setRightPanelWidth] = useState(defaultRightPanelWidthPx);
   const [resizing, setResizing] = useState(false);
   const blobRef = useRef<string | null>(null);
@@ -352,6 +355,18 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
                 <FolderOpen className="h-3.5 w-3.5" />
                 {t("dashboard.openFile")}
               </Button>
+              {state.kind === "sdf" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSignOpen(true)}
+                  className="gap-1.5"
+                >
+                  <FileSignature className="h-3.5 w-3.5" />
+                  {t("producer.signDocument")}
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="secondary"
@@ -520,6 +535,23 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
             </div>
           </aside>
         </div>
+      )}
+
+      {state.status === "ready" && state.kind === "sdf" && (
+        <SignSdfDialog
+          open={signOpen}
+          onOpenChange={setSignOpen}
+          absolutePath={path}
+          filename={state.fileLabel}
+          onSigned={async () => {
+            try {
+              const sig = await validateSdfSignature(path);
+              setSignature(sig);
+            } catch {
+              setSignature({ status: "invalid", reason: "validator_error" });
+            }
+          }}
+        />
       )}
     </div>
   );

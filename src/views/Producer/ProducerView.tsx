@@ -3,12 +3,21 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { buildSDF } from "@etapsky/sdf-kit/producer";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, CheckCircle2, Download, GripVertical, Loader2, XCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Download,
+  FileSignature,
+  GripVertical,
+  Loader2,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ALL_DOC_CONFIGS, type ProduceState } from "@/schemas";
 import { ProducerDocTypeSelector } from "./ProducerDocTypeSelector";
 import { ProducerFormRenderer }    from "./ProducerFormRenderer";
 import { ProducerJsonPreview }     from "./ProducerJsonPreview";
+import { SignSdfDialog } from "@/components/sign/SignSdfDialog";
 import { saveSdfAs } from "@/lib/tauri/dialog";
 import { useToast } from "@/components/notifications/ToastProvider";
 import { useDocumentStore } from "@/stores/documentStore";
@@ -41,6 +50,7 @@ export function ProducerView({ onClose }: Props) {
   const [docTypeId, setDocTypeId] = useState<string>("purchase-order");
   const [values,    setValues]    = useState<Record<string, string>>({});
   const [genState,  setGenState]  = useState<ProduceState>({ status: "idle" });
+  const [signOpen,  setSignOpen]  = useState(false);
 
   // Resizable form panel
   const [formWidth, setFormWidth] = useState(defaultFormPanelWidthPx);
@@ -108,7 +118,7 @@ export function ProducerView({ onClose }: Props) {
       const parts    = savePath.split(/[/\\]/);
       const filename = parts[parts.length - 1] || defaultName;
       addRecent(savePath);
-      setGenState({ status: "done", filename });
+      setGenState({ status: "done", filename, path: savePath });
       notify({
         variant: "success",
         title: t("producer.generateSuccess"),
@@ -213,9 +223,9 @@ export function ProducerView({ onClose }: Props) {
           <div className="ml-auto flex shrink-0 items-center gap-2">
             {/* State feedback */}
             {genState.status === "done" && (
-              <span className="flex items-center gap-1.5 text-xs text-[--color-success]">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                {genState.filename}
+              <span className="flex min-w-0 items-center gap-1.5 text-xs text-[--color-success]">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{genState.filename}</span>
               </span>
             )}
             {genState.status === "error" && (
@@ -223,6 +233,20 @@ export function ProducerView({ onClose }: Props) {
                 <XCircle className="h-3.5 w-3.5" />
                 {t("producer.generateError")}
               </span>
+            )}
+
+            {genState.status === "done" && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isGenerating}
+                className="gap-1.5"
+                onClick={() => setSignOpen(true)}
+              >
+                <FileSignature className="h-3.5 w-3.5" />
+                {t("producer.signDocument")}
+              </Button>
             )}
 
             <Button
@@ -416,6 +440,15 @@ export function ProducerView({ onClose }: Props) {
           </div>
         </aside>
       </div>
+
+      {genState.status === "done" && (
+        <SignSdfDialog
+          open={signOpen}
+          onOpenChange={setSignOpen}
+          absolutePath={genState.path}
+          filename={genState.filename}
+        />
+      )}
     </div>
   );
 }

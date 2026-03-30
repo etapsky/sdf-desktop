@@ -29,5 +29,5 @@ export interface DocTypeConfig {
 export type ProduceState =
   | { status: "idle" }
   | { status: "generating" }
-  | { status: "done"; filename: string }
+  | { status: "done"; filename: string; path: string }
   | { status: "error"; message: string };

@@ -20,6 +20,7 @@ import { ReaderRawPanel } from "@/components/reader/ReaderRawPanel";
 import { readSdfFile } from "@/lib/tauri/fs";
 import { openSdfOrPdf, savePdfAs, saveSdfAs } from "@/lib/tauri/dialog";
 import { useToast } from "@/components/notifications/ToastProvider";
+import { fileNameFromPath } from "@/lib/utils";
 
 type LoadState =
   | { status: "loading" }
@@ -48,11 +49,6 @@ function clampRightPanelWidthPx(w: number): number {
   const min = 260;
   const max = Math.min(960, Math.floor(window.innerWidth * 0.78));
   return Math.max(min, Math.min(max, Math.round(w)));
-}
-
-function fileNameFromPath(path: string): string {
-  const parts = path.split(/[/\\]/);
-  return parts[parts.length - 1] || path;
 }
 
 function isPlainPdf(path: string): boolean {

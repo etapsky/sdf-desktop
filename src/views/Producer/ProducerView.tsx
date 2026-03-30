@@ -11,6 +11,7 @@ import { ProducerFormRenderer }    from "./ProducerFormRenderer";
 import { ProducerJsonPreview }     from "./ProducerJsonPreview";
 import { saveSdfAs } from "@/lib/tauri/dialog";
 import { useToast } from "@/components/notifications/ToastProvider";
+import { useDocumentStore } from "@/stores/documentStore";
 
 // ── Panel width helpers (mirrors DocumentReaderView) ──────────────────────────
 
@@ -35,6 +36,7 @@ interface Props {
 export function ProducerView({ onClose }: Props) {
   const { t } = useTranslation();
   const { notify } = useToast();
+  const addRecent = useDocumentStore((s) => s.addRecent);
 
   const [docTypeId, setDocTypeId] = useState<string>("purchase-order");
   const [values,    setValues]    = useState<Record<string, string>>({});
@@ -105,6 +107,7 @@ export function ProducerView({ onClose }: Props) {
       await writeFile(savePath, buffer);
       const parts    = savePath.split(/[/\\]/);
       const filename = parts[parts.length - 1] || defaultName;
+      addRecent(savePath);
       setGenState({ status: "done", filename });
       notify({
         variant: "success",
@@ -119,7 +122,7 @@ export function ProducerView({ onClose }: Props) {
         message: err instanceof Error ? err.message : String(err),
       });
     }
-  }, [config, values, notify, t]);
+  }, [config, values, notify, t, addRecent]);
 
   // ── Resize drag handlers ──────────────────────────────────────────────────
 

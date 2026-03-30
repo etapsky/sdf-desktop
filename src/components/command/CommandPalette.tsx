@@ -15,19 +15,12 @@ import { useThemeStore } from "@/stores/themeStore";
 
 export type CommandNavigateView = "dashboard" | "documents" | "cloud" | "settings" | "new";
 
-/** Recent .sdf names — same source as dashboard mock; later replace with store/API. */
-const RECENT_SDF_NAMES: string[] = [
-  "invoice-2026-001.sdf",
-  "contract-acme-corp.sdf",
-  "purchase-order-draft.sdf",
-  "delivery-note-0392.sdf",
-  "customs-declaration-TR.sdf",
-];
-
 interface CommandPaletteProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onNavigate: (view: CommandNavigateView) => void;
+  recentDocuments?: { path: string; label: string }[];
+  onOpenRecentDocument?: (path: string) => void;
 }
 
 function runThen(
@@ -38,7 +31,13 @@ function runThen(
   queueMicrotask(action);
 }
 
-export function CommandPalette({ open, onOpenChange, onNavigate }: CommandPaletteProps) {
+export function CommandPalette({
+  open,
+  onOpenChange,
+  onNavigate,
+  recentDocuments = [],
+  onOpenRecentDocument,
+}: CommandPaletteProps) {
   const { t } = useTranslation();
   const { cycle } = useThemeStore();
 
@@ -127,29 +126,38 @@ export function CommandPalette({ open, onOpenChange, onNavigate }: CommandPalett
           </CommandItem>
         </CommandGroup>
 
-        <CommandSeparator className="command-palette-sep" />
+        {recentDocuments.length > 0 && (
+          <>
+            <CommandSeparator className="command-palette-sep" />
 
-        <CommandGroup heading={t("commandPalette.documents")}>
-          {RECENT_SDF_NAMES.map((name) => (
-            <CommandItem
-              key={name}
-              value={`doc-${name}`}
-              keywords={["sdf", ...name.replace(/\.sdf$/i, "").split(/[-_.]/gi).filter(Boolean)]}
-              className="command-palette-doc-item"
-              onSelect={() =>
-                runThen(onOpenChange, () => {
-                  onNavigate("documents");
-                })
-              }
-            >
-              <FileText className="shrink-0 opacity-80" />
-              <span className="min-w-0 flex-1 truncate">{name}</span>
-              <span className="text-[10px] uppercase tracking-wide text-[--color-muted] shrink-0 tabular-nums">
-                {t("commandPalette.openDocument")}
-              </span>
-            </CommandItem>
-          ))}
-        </CommandGroup>
+            <CommandGroup heading={t("commandPalette.documents")}>
+              {recentDocuments.map((doc) => (
+                <CommandItem
+                  key={doc.path}
+                  value={`doc-${doc.path}`}
+                  keywords={[
+                    "sdf",
+                    "pdf",
+                    doc.label,
+                    ...doc.label.replace(/\.(sdf|pdf)$/i, "").split(/[-_.]/gi).filter(Boolean),
+                  ]}
+                  className="command-palette-doc-item"
+                  onSelect={() =>
+                    runThen(onOpenChange, () => {
+                      onOpenRecentDocument?.(doc.path);
+                    })
+                  }
+                >
+                  <FileText className="shrink-0 opacity-80" />
+                  <span className="min-w-0 flex-1 truncate">{doc.label}</span>
+                  <span className="text-[10px] uppercase tracking-wide text-[--color-muted] shrink-0 tabular-nums">
+                    {t("commandPalette.openDocument")}
+                  </span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </>
+        )}
       </CommandList>
     </CommandDialog>
   );

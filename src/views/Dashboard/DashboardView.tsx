@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useCallback, useMemo } from "react";
+import type { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,22 +18,41 @@ import {
 import { cn } from "@/lib/utils";
 import sdfIcon from "@/assets/sdf_icon.svg";
 import { openSdfOrPdf } from "@/lib/tauri/dialog";
+import { useDocumentStore } from "@/stores/documentStore";
+
+function formatRelativeOpenedAt(iso: string, t: TFunction): string {
+  const then = new Date(iso).getTime();
+  const diffMs = Math.max(0, Date.now() - then);
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return t("time.minutesAgo", { count: 1 });
+  if (mins < 60) return t("time.minutesAgo", { count: mins });
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return t("time.hoursAgo", { count: hours });
+  const days = Math.floor(hours / 24);
+  if (days === 1) return t("time.yesterday");
+  return t("time.daysAgo", { count: days });
+}
 
 interface DashboardViewProps {
   onOpenSdfFile?: (path: string) => void;
   onNewDocument?: () => void;
 }
 
-interface RecentFile {
+interface RecentFileRow {
   id: string;
   name: string;
-  size: string;
   modified: string;
-  status: "signed" | "unsigned" | "invalid";
+  status: "signed" | "unsigned" | "invalid" | "unknown";
 }
 
-function StatusBadge({ status }: { status: RecentFile["status"] }) {
+function StatusBadge({ status }: { status: RecentFileRow["status"] }) {
   const { t } = useTranslation();
+  if (status === "unknown")
+    return (
+      <Badge variant="secondary" className="font-normal opacity-90">
+        {t("dashboard.signatureUnknown")}
+      </Badge>
+    );
   if (status === "signed")
     return (
       <Badge variant="success">
@@ -107,12 +127,30 @@ function StatCard({ label, value, sub, icon, color }: StatCardProps) {
 
 export function DashboardView({ onOpenSdfFile, onNewDocument }: DashboardViewProps) {
   const { t } = useTranslation();
+  const recentFiles = useDocumentStore((s) => s.recentFiles);
 
   const handleOpenFile = useCallback(async () => {
     if (!onOpenSdfFile) return;
     const selected = await openSdfOrPdf();
     if (selected) onOpenSdfFile(selected);
   }, [onOpenSdfFile]);
+
+  const weekCount = useMemo(() => {
+    const weekMs = 7 * 86400000;
+    const cutoff = Date.now() - weekMs;
+    return recentFiles.filter((r) => new Date(r.openedAt).getTime() >= cutoff).length;
+  }, [recentFiles]);
+
+  const recentRows = useMemo<RecentFileRow[]>(
+    () =>
+      recentFiles.map((r) => ({
+        id: r.path,
+        name: r.label,
+        modified: formatRelativeOpenedAt(r.openedAt, t),
+        status: "unknown",
+      })),
+    [recentFiles, t]
+  );
 
   const greetingText = useMemo(() => {
     const h = new Date().getHours();
@@ -123,47 +161,6 @@ export function DashboardView({ onOpenSdfFile, onNewDocument }: DashboardViewPro
     else if (h >= 17 && h < 21) key = "greeting.evening";
     return t(key, { name: "Yunus" });
   }, [t]);
-
-  const mockRecent = useMemo<RecentFile[]>(
-    () => [
-      {
-        id: "1",
-        name: "invoice-2026-001.sdf",
-        size: "142 KB",
-        modified: t("time.minutesAgo", { count: 2 }),
-        status: "signed",
-      },
-      {
-        id: "2",
-        name: "contract-acme-corp.sdf",
-        size: "89 KB",
-        modified: t("time.hoursAgo", { count: 1 }),
-        status: "signed",
-      },
-      {
-        id: "3",
-        name: "purchase-order-draft.sdf",
-        size: "56 KB",
-        modified: t("time.yesterday"),
-        status: "unsigned",
-      },
-      {
-        id: "4",
-        name: "delivery-note-0392.sdf",
-        size: "201 KB",
-        modified: t("time.daysAgo", { count: 2 }),
-        status: "invalid",
-      },
-      {
-        id: "5",
-        name: "customs-declaration-TR.sdf",
-        size: "317 KB",
-        modified: t("time.daysAgo", { count: 3 }),
-        status: "signed",
-      },
-    ],
-    [t]
-  );
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-[--color-bg]">
@@ -177,7 +174,7 @@ export function DashboardView({ onOpenSdfFile, onNewDocument }: DashboardViewPro
                 <p className="text-sm text-[--color-muted-fg] mt-0.5">
                   <Trans
                     i18nKey="dashboard.bannerAwaiting"
-                    values={{ count: 4 }}
+                    values={{ count: recentFiles.length }}
                     components={{
                       highlight: <span className="text-[--color-amber] font-semibold" />,
                     }}
@@ -211,28 +208,28 @@ export function DashboardView({ onOpenSdfFile, onNewDocument }: DashboardViewPro
           <div className="grid grid-cols-4 gap-3">
             <StatCard
               label={t("dashboard.statTotal")}
-              value="24"
+              value={String(recentFiles.length)}
               sub={t("dashboard.statTotalSub")}
               icon={<FileText className="h-4 w-4" />}
               color="primary"
             />
             <StatCard
               label={t("dashboard.statSigned")}
-              value="18"
-              sub={t("dashboard.statSignedSub")}
+              value="—"
+              sub={t("dashboard.statSoon")}
               icon={<ShieldCheck className="h-4 w-4" />}
               color="success"
             />
             <StatCard
               label={t("dashboard.statPending")}
-              value="4"
-              sub={t("dashboard.statPendingSub")}
+              value="—"
+              sub={t("dashboard.statSoon")}
               icon={<AlertTriangle className="h-4 w-4" />}
               color="amber"
             />
             <StatCard
               label={t("dashboard.statWeek")}
-              value="6"
+              value={String(weekCount)}
               sub={t("dashboard.statWeekSub")}
               icon={<TrendingUp className="h-4 w-4" />}
               color="primary"
@@ -251,28 +248,34 @@ export function DashboardView({ onOpenSdfFile, onNewDocument }: DashboardViewPro
             </div>
 
             <div className="rounded-xl border border-[--color-border] overflow-hidden bg-[--color-surface] shadow-[--shadow-sm]">
-              {mockRecent.map((file, i) => (
-                <div
-                  key={file.id}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 hover:bg-[--color-surface-hover] transition-colors cursor-pointer group",
-                    i < mockRecent.length - 1 && "border-b border-[--color-border-subtle]"
-                  )}
-                >
-                  <div className="h-9 w-9 rounded-lg bg-[--color-primary-muted] flex items-center justify-center shrink-0 border border-[--color-primary]/20">
-                    <img src={sdfIcon} alt="" className="h-5 w-5" />
-                  </div>
+              {recentRows.length === 0 ? (
+                <p className="px-4 py-10 text-center text-sm text-[--color-muted-fg]">
+                  {t("dashboard.recentEmpty")}
+                </p>
+              ) : (
+                recentRows.map((file, i) => (
+                  <button
+                    key={file.id}
+                    type="button"
+                    onClick={() => onOpenSdfFile?.(file.id)}
+                    className={cn(
+                      "flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[--color-surface-hover] group",
+                      i < recentRows.length - 1 && "border-b border-[--color-border-subtle]"
+                    )}
+                  >
+                    <div className="h-9 w-9 rounded-lg bg-[--color-primary-muted] flex items-center justify-center shrink-0 border border-[--color-primary]/20">
+                      <img src={sdfIcon} alt="" className="h-5 w-5" />
+                    </div>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-[--color-fg] truncate">{file.name}</p>
-                    <p className="text-[11px] text-[--color-muted]">
-                      {file.size} · {file.modified}
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium text-[--color-fg] truncate">{file.name}</p>
+                      <p className="text-[11px] text-[--color-muted]">{file.modified}</p>
+                    </div>
 
-                  <StatusBadge status={file.status} />
-                </div>
-              ))}
+                    <StatusBadge status={file.status} />
+                  </button>
+                ))
+              )}
             </div>
           </div>
         </div>

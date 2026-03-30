@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
+import { DocumentTabBar } from "./DocumentTabBar";
 import { CommandPalette } from "@/components/command/CommandPalette";
 import { DashboardView } from "@/views/Dashboard/DashboardView";
 import { DocumentReaderView } from "@/views/Document/DocumentReaderView";
@@ -9,6 +10,7 @@ import { SettingsView } from "@/views/Settings/SettingsView";
 import { ProducerView } from "@/views/Producer/ProducerView";
 import { useSdfOpenListener } from "@/hooks/useSdfOpenListener";
 import { useThemeStore } from "@/stores/themeStore";
+import { useDocumentStore } from "@/stores/documentStore";
 
 type View = "dashboard" | "documents" | "cloud" | "settings" | "new";
 
@@ -16,15 +18,32 @@ export function AppShell() {
   const [activeView, setActiveView] = useState<View>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const [openDocumentPath, setOpenDocumentPath] = useState<string | null>(null);
   const { resolved } = useThemeStore();
 
-  const handleOpenSdfPath = useCallback((filePath: string) => {
-    setOpenDocumentPath(filePath);
-    setActiveView("dashboard");
-  }, []);
+  const activePath = useDocumentStore((s) => s.activePath);
+  const openTabs = useDocumentStore((s) => s.openTabs);
+  const openFile = useDocumentStore((s) => s.openFile);
+  const setActiveTab = useDocumentStore((s) => s.setActiveTab);
+  const closeTab = useDocumentStore((s) => s.closeTab);
+  const leaveReader = useDocumentStore((s) => s.leaveReader);
+  const recentFiles = useDocumentStore((s) => s.recentFiles);
+
+  const handleOpenSdfPath = useCallback(
+    (filePath: string) => {
+      openFile(filePath);
+    },
+    [openFile]
+  );
 
   useSdfOpenListener(handleOpenSdfPath);
+
+  const navigate = useCallback(
+    (v: View) => {
+      leaveReader();
+      setActiveView(v);
+    },
+    [leaveReader]
+  );
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", resolved);
@@ -46,12 +65,12 @@ export function AppShell() {
       case "settings":
         return <SettingsView />;
       case "new":
-        return <ProducerView onClose={() => setActiveView("dashboard")} />;
+        return <ProducerView onClose={() => navigate("dashboard")} />;
       default:
         return (
           <DashboardView
             onOpenSdfFile={handleOpenSdfPath}
-            onNewDocument={() => setActiveView("new")}
+            onNewDocument={() => navigate("new")}
           />
         );
     }
@@ -68,7 +87,6 @@ export function AppShell() {
         background: "var(--color-bg)",
       }}
     >
-      {/* ── Header: full width, spans everything ── */}
       <Header
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((v) => !v)}
@@ -78,15 +96,16 @@ export function AppShell() {
       <CommandPalette
         open={commandPaletteOpen}
         onOpenChange={setCommandPaletteOpen}
-        onNavigate={setActiveView}
+        onNavigate={navigate}
+        recentDocuments={recentFiles.map((r) => ({ path: r.path, label: r.label }))}
+        onOpenRecentDocument={(path) => openFile(path)}
       />
 
-      {/* ── Body: sidebar + main ── */}
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <Sidebar
           activeView={activeView}
           collapsed={!sidebarOpen}
-          onNavigate={(v) => setActiveView(v as View)}
+          onNavigate={(v) => navigate(v as View)}
         />
         <main
           style={{
@@ -98,12 +117,24 @@ export function AppShell() {
             background: "var(--color-bg)",
           }}
         >
-          {openDocumentPath ? (
-            <DocumentReaderView
-              path={openDocumentPath}
-              onClose={() => setOpenDocumentPath(null)}
-              onOpenFile={handleOpenSdfPath}
-            />
+          {activePath ? (
+            <>
+              {openTabs.length > 0 && (
+                <DocumentTabBar
+                  tabs={openTabs}
+                  activePath={activePath}
+                  onSelect={setActiveTab}
+                  onClose={closeTab}
+                />
+              )}
+              <DocumentReaderView
+                path={activePath}
+                onClose={() => {
+                  if (activePath) closeTab(activePath);
+                }}
+                onOpenFile={handleOpenSdfPath}
+              />
+            </>
           ) : (
             renderView()
           )}

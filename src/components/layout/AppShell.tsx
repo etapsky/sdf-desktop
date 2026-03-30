@@ -6,6 +6,7 @@ import { Sidebar } from "./Sidebar";
 import { DocumentTabBar } from "./DocumentTabBar";
 import { CommandPalette } from "@/components/command/CommandPalette";
 import { DashboardView } from "@/views/Dashboard/DashboardView";
+import { DocumentsView } from "@/views/Documents/DocumentsView";
 import { DocumentReaderView } from "@/views/Document/DocumentReaderView";
 import { SettingsView } from "@/views/Settings/SettingsView";
 import { ProducerView } from "@/views/Producer/ProducerView";
@@ -80,14 +81,21 @@ export function AppShell() {
       case "settings":
         return <SettingsView />;
       case "cloud":
-        return <CloudSyncView />;
+        return <CloudSyncView onOpenLocalDocuments={() => navigate("documents")} />;
+      case "documents":
+        return (
+          <DocumentsView onOpenSdfFile={handleOpenSdfPath} onNewDocument={() => navigate("new")} />
+        );
       case "new":
         return <ProducerView onClose={() => navigate("dashboard")} />;
+      case "dashboard":
       default:
         return (
           <DashboardView
             onOpenSdfFile={handleOpenSdfPath}
             onNewDocument={() => navigate("new")}
+            onViewAllDocuments={() => navigate("documents")}
+            onOpenCloudLibrary={isAuthenticated ? () => navigate("cloud") : undefined}
           />
         );
     }

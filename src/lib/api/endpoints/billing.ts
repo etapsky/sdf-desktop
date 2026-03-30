@@ -41,12 +41,27 @@ export type UsageMetric = z.infer<typeof UsageMetricSchema>;
 export type BillingPlan = z.infer<typeof PlanSchema>;
 export type BillingSubscription = z.infer<typeof SubscriptionSchema>;
 
+const UsageSeriesPointSchema = z.object({
+  date: z.string(),
+  documents: z.number(),
+  apiCalls: z.number(),
+  storageGb: z.number(),
+});
+
+export type UsageSeriesPoint = z.infer<typeof UsageSeriesPointSchema>;
+
 export function createBillingEndpoints(baseUrl: string, tokens: ApiClientTokens) {
   const client = createApiClient(baseUrl, tokens);
 
   return {
     usage() {
       return client.get<unknown>("/v1/billing/usage").then((raw) => z.array(UsageMetricSchema).parse(raw));
+    },
+    usageSeries(days: number) {
+      const d = Math.min(90, Math.max(1, days));
+      return client
+        .get<unknown>(`/v1/billing/usage/series?days=${d}`)
+        .then((raw) => z.array(UsageSeriesPointSchema).parse(raw));
     },
     plan() {
       return client.get<unknown>("/v1/billing/plan").then((raw) => PlanSchema.parse(raw));

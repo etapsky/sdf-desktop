@@ -6,6 +6,7 @@ export const billingUsageQueryKey = ["cloud", "billing", "usage"] as const;
 export const queryKeys = {
   billing: {
     usage: () => billingUsageQueryKey,
+    usageSeries: (days: number) => ["billing", "usage", "series", { days }] as const,
     plan: () => ["billing", "plan"] as const,
     subscription: () => ["billing", "subscription"] as const,
   },

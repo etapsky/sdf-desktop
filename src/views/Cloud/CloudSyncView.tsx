@@ -1,15 +1,20 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Download, Loader2, RefreshCw, Trash2, Upload } from "lucide-react";
+import { ChevronRight, Download, FileText, Loader2, RefreshCw, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCloudSync } from "@/hooks/useCloudSync";
 import { useToast } from "@/components/notifications/ToastProvider";
 import { describeApiError } from "@/lib/api/client";
 import { saveSdfArrayBuffer } from "@/lib/tauri/dialog";
 import { formatBytes } from "@/lib/formatBytes";
+import sdfIcon from "@/assets/sdf_icon.svg";
 
-export function CloudSyncView() {
+type CloudSyncViewProps = {
+  onOpenLocalDocuments?: () => void;
+};
+
+export function CloudSyncView({ onOpenLocalDocuments }: CloudSyncViewProps) {
   const { t } = useTranslation();
   const { notify } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -70,6 +75,22 @@ export function CloudSyncView() {
         <h1 className="text-lg font-semibold tracking-tight text-[--color-fg]">{t("cloud.title")}</h1>
         <p className="text-sm text-[--color-muted-fg]">{t("cloud.description")}</p>
       </div>
+
+      {onOpenLocalDocuments && (
+        <button
+          type="button"
+          onClick={onOpenLocalDocuments}
+          className="flex w-full max-w-xl items-center justify-between gap-3 rounded-lg border border-[--color-border] bg-[--color-surface] px-3 py-2.5 text-left text-sm shadow-[--shadow-sm] transition-colors hover:bg-[--color-surface-hover]"
+        >
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[--color-border-subtle] bg-[--color-surface-elevated] text-[--color-primary]">
+              <FileText className="h-4 w-4" aria-hidden />
+            </span>
+            <span className="text-[--color-fg]">{t("cloud.linkLocalDocuments")}</span>
+          </div>
+          <ChevronRight className="h-4 w-4 shrink-0 text-[--color-muted]" aria-hidden />
+        </button>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <QuotaCard
@@ -155,8 +176,13 @@ export function CloudSyncView() {
             <tbody>
               {documentsQuery.data.data.map((row) => (
                 <tr key={row.id} className="border-b border-[--color-border-subtle] last:border-0">
-                  <td className="max-w-[240px] truncate px-3 py-2 font-medium text-[--color-fg]" title={row.filename}>
-                    {row.filename}
+                  <td className="max-w-[min(320px,45vw)] px-3 py-2">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <CloudFileGlyph filename={row.filename} />
+                      <span className="truncate font-medium text-[--color-fg]" title={row.filename}>
+                        {row.filename}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-3 py-2 text-[--color-muted-fg]">{formatBytes(row.size)}</td>
                   <td className="px-3 py-2 text-[--color-muted-fg]">{row.status}</td>
@@ -198,6 +224,26 @@ export function CloudSyncView() {
         </div>
       )}
     </div>
+  );
+}
+
+function isSdfFilename(name: string): boolean {
+  return name.toLowerCase().endsWith(".sdf");
+}
+
+/** Portal-style: SDF logo for `.sdf`, generic file icon otherwise. */
+function CloudFileGlyph({ filename }: { filename: string }) {
+  if (isSdfFilename(filename)) {
+    return (
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[--color-primary]/20 bg-[--color-primary-muted]">
+        <img src={sdfIcon} alt="" className="h-5 w-5" />
+      </span>
+    );
+  }
+  return (
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[--color-border-subtle] bg-[--color-surface-elevated]">
+      <FileText className="h-4 w-4 text-[--color-muted-fg]" aria-hidden />
+    </span>
   );
 }
 

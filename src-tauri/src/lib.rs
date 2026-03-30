@@ -90,33 +90,41 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| {
-            // macOS: Finder double-click / "Open With" delivers file URLs here,
-            // NOT via argv. This also fires when a .sdf is opened while the app
-            // is already running.
-            if let tauri::RunEvent::Opened { urls } = &event {
-                let paths: Vec<String> = urls
-                    .iter()
-                    .filter_map(|url| url.to_file_path().ok())
-                    .filter(|p| {
-                        p.extension()
-                            .map(|e| e.eq_ignore_ascii_case("sdf"))
-                            .unwrap_or(false)
-                    })
-                    .map(|p| p.to_string_lossy().into_owned())
-                    .collect();
+            #[cfg(target_os = "macos")]
+            {
+                // macOS: Finder double-click / "Open With" delivers file URLs here,
+                // NOT via argv. This also fires when a .sdf is opened while the app
+                // is already running.
+                if let tauri::RunEvent::Opened { urls } = &event {
+                    let paths: Vec<String> = urls
+                        .iter()
+                        .filter_map(|url| url.to_file_path().ok())
+                        .filter(|p| {
+                            p.extension()
+                                .map(|e| e.eq_ignore_ascii_case("sdf"))
+                                .unwrap_or(false)
+                        })
+                        .map(|p| p.to_string_lossy().into_owned())
+                        .collect();
 
-                if paths.is_empty() {
-                    return;
+                    if paths.is_empty() {
+                        return;
+                    }
+
+                    // Store so the frontend can drain them with get_launch_sdf_paths.
+                    if let Some(state) = app.try_state::<AppState>() {
+                        state.pending_sdf_paths.lock().unwrap().extend(paths.clone());
+                    }
+
+                    // Also emit directly — works when the frontend is already ready
+                    // (e.g. user opens a second file while the app is running).
+                    let _ = app.emit("sdf-open-paths", serde_json::json!({ "paths": paths }));
                 }
+            }
 
-                // Store so the frontend can drain them with get_launch_sdf_paths.
-                if let Some(state) = app.try_state::<AppState>() {
-                    state.pending_sdf_paths.lock().unwrap().extend(paths.clone());
-                }
-
-                // Also emit directly — works when the frontend is already ready
-                // (e.g. user opens a second file while the app is running).
-                let _ = app.emit("sdf-open-paths", serde_json::json!({ "paths": paths }));
+            #[cfg(not(target_os = "macos"))]
+            {
+                let _ = (app, event);
             }
         });
 }

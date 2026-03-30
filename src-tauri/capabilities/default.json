@@ -13,6 +13,14 @@
     "fs:allow-read-file",
     "fs:allow-read-dir",
     "fs:allow-write-file",
-    "fs:read-meta"
+    "fs:read-meta",
+    {
+      "identifier": "http:default",
+      "allow": [
+        { "url": "https://**" },
+        { "url": "http://localhost:**/**" },
+        { "url": "http://127.0.0.1:**/**" }
+      ]
+    }
   ]
 }

@@ -11,7 +11,8 @@
     "cloudSync": "Cloud Sync",
     "soon": "Soon",
     "settings": "Settings",
-    "newDocument": "New Document"
+    "newDocument": "New Document",
+    "openAccountSettings": "Open account and settings"
   },
   "header": {
     "hideSidebar": "Hide sidebar",
@@ -138,6 +139,38 @@
     "signSuccessTitle": "Document signed",
     "signSuccessBody": "{{file}} was signed successfully.",
     "signErrorTitle": "Signing failed"
+  },
+  "auth": {
+    "title": "Secure workspace sign-in",
+    "subtitle": "Sign in with your Etapsky Cloud account",
+    "loginTab": "Sign in",
+    "registerTab": "Register",
+    "email": "Email",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "name": "Full name",
+    "company": "Company",
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "signOut": "Sign out",
+    "session": "Session",
+    "signedIn": "Signed in",
+    "signedOut": "Signed out",
+    "genericError": "Authentication failed. Please try again.",
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "unauthorized": "Invalid email or password.",
+      "validation": "Please check the fields and try again.",
+      "conflict": "An account with this email already exists.",
+      "notFound": "We could not find that resource.",
+      "forbidden": "You do not have permission to do this.",
+      "rateLimited": "Too many attempts. Please wait a moment and try again.",
+      "planLimit": "Your plan limit was reached. Upgrade or try again later.",
+      "network": "Could not reach the server. Check your connection and try again.",
+      "server": "The server is temporarily unavailable. Please try again later.",
+      "badRequest": "The request could not be processed."
+    }
   },
   "greeting": {
     "morning": "Good morning, {{name}}",

@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import fennecFox from "@/assets/fennec-fox.svg";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -120,8 +121,12 @@ interface SidebarProps {
 export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigate }: SidebarProps) {
   const { t } = useTranslation();
   const { resolved } = useThemeStore();
+  const { user } = useAuth();
   const avatarImgFilter = resolved === "dark" ? "brightness(0) invert(1)" : "none";
   const nav = (view: string) => () => onNavigate?.(view);
+
+  const displayName = user?.name?.trim() || user?.email || "Guest";
+  const displayOrg = user?.tenantId || "—";
 
   return (
     <aside
@@ -182,7 +187,8 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
       {/* ── User pill ── */}
       <div style={{ padding: collapsed ? "8px 6px 10px" : "8px 8px 10px" }}>
         <button
-          title={collapsed ? "Yunus YILDIZ" : undefined}
+          type="button"
+          title={collapsed ? `${displayName} — ${t("nav.openAccountSettings")}` : t("nav.openAccountSettings")}
           style={{
             cursor: "pointer",
             display: "flex",
@@ -202,6 +208,7 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
           onMouseLeave={(e) =>
             ((e.currentTarget as HTMLButtonElement).style.background = "transparent")
           }
+          onClick={nav("settings")}
         >
           <div
             style={{
@@ -243,7 +250,7 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
                     lineHeight: 1.3,
                   }}
                 >
-                  Yunus YILDIZ
+                  {displayName}
                 </p>
                 <p
                   style={{
@@ -256,7 +263,7 @@ export function Sidebar({ activeView = "dashboard", collapsed = false, onNavigat
                     lineHeight: 1.3,
                   }}
                 >
-                  Etapsky Inc.
+                  {displayOrg}
                 </p>
               </div>
               <ChevronDown

@@ -11,7 +11,8 @@
     "cloudSync": "Cloud-Sync",
     "soon": "Demn\u00e4chst",
     "settings": "Einstellungen",
-    "newDocument": "Neues Dokument"
+    "newDocument": "Neues Dokument",
+    "openAccountSettings": "Konto und Einstellungen \u00f6ffnen"
   },
   "header": {
     "hideSidebar": "Seitenleiste ausblenden",
@@ -138,6 +139,38 @@
     "signSuccessTitle": "Dokument signiert",
     "signSuccessBody": "{{file}} wurde erfolgreich signiert.",
     "signErrorTitle": "Signierung fehlgeschlagen"
+  },
+  "auth": {
+    "title": "Sicherer Workspace-Login",
+    "subtitle": "Mit Ihrem Etapsky-Cloud-Konto anmelden",
+    "loginTab": "Anmelden",
+    "registerTab": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen",
+    "name": "Vollständiger Name",
+    "company": "Unternehmen",
+    "signIn": "Anmelden",
+    "createAccount": "Konto erstellen",
+    "signOut": "Abmelden",
+    "session": "Sitzung",
+    "signedIn": "Angemeldet",
+    "signedOut": "Abgemeldet",
+    "genericError": "Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
+      "unauthorized": "E-Mail oder Passwort ist ung\u00fcltig.",
+      "validation": "Bitte pr\u00fcfen Sie die Eingaben und versuchen Sie es erneut.",
+      "conflict": "F\u00fcr diese E-Mail existiert bereits ein Konto.",
+      "notFound": "Die Ressource wurde nicht gefunden.",
+      "forbidden": "Sie haben keine Berechtigung f\u00fcr diese Aktion.",
+      "rateLimited": "Zu viele Versuche. Bitte kurz warten und erneut versuchen.",
+      "planLimit": "Ihr Planlimit wurde erreicht. Bitte upgraden oder sp\u00e4ter erneut versuchen.",
+      "network": "Server nicht erreichbar. Bitte Verbindung pr\u00fcfen und erneut versuchen.",
+      "server": "Der Server ist vor\u00fcbergehend nicht verf\u00fcgbar. Bitte sp\u00e4ter erneut versuchen.",
+      "badRequest": "Die Anfrage konnte nicht verarbeitet werden."
+    }
   },
   "greeting": {
     "morning": "Guten Morgen, {{name}}",

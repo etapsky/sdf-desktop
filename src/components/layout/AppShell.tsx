@@ -8,9 +8,11 @@ import { DashboardView } from "@/views/Dashboard/DashboardView";
 import { DocumentReaderView } from "@/views/Document/DocumentReaderView";
 import { SettingsView } from "@/views/Settings/SettingsView";
 import { ProducerView } from "@/views/Producer/ProducerView";
+import { AuthView } from "@/views/Auth/AuthView";
 import { useSdfOpenListener } from "@/hooks/useSdfOpenListener";
 import { useThemeStore } from "@/stores/themeStore";
 import { useDocumentStore } from "@/stores/documentStore";
+import { useAuth } from "@/hooks/useAuth";
 
 type View = "dashboard" | "documents" | "cloud" | "settings" | "new";
 
@@ -19,6 +21,7 @@ export function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const { resolved } = useThemeStore();
+  const { isAuthenticated, isLoading, init } = useAuth();
 
   const activePath = useDocumentStore((s) => s.activePath);
   const openTabs = useDocumentStore((s) => s.openTabs);
@@ -37,6 +40,10 @@ export function AppShell() {
 
   useSdfOpenListener(handleOpenSdfPath);
 
+  useEffect(() => {
+    void init();
+  }, [init]);
+
   const navigate = useCallback(
     (v: View) => {
       leaveReader();
@@ -50,6 +57,11 @@ export function AppShell() {
   }, [resolved]);
 
   useEffect(() => {
+    if (!isAuthenticated) setCommandPaletteOpen(false);
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -58,7 +70,7 @@ export function AppShell() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [isAuthenticated]);
 
   const renderView = () => {
     switch (activeView) {
@@ -102,11 +114,13 @@ export function AppShell() {
       />
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        <Sidebar
-          activeView={activeView}
-          collapsed={!sidebarOpen}
-          onNavigate={(v) => navigate(v as View)}
-        />
+        {isAuthenticated && (
+          <Sidebar
+            activeView={activeView}
+            collapsed={!sidebarOpen}
+            onNavigate={(v) => navigate(v as View)}
+          />
+        )}
         <main
           style={{
             flex: 1,
@@ -117,7 +131,15 @@ export function AppShell() {
             background: "var(--color-bg)",
           }}
         >
-          {activePath ? (
+          {!isAuthenticated ? (
+            isLoading ? (
+              <div className="flex flex-1 items-center justify-center text-sm text-[--color-muted]">
+                Restoring session…
+              </div>
+            ) : (
+              <AuthView />
+            )
+          ) : activePath ? (
             <>
               {openTabs.length > 0 && (
                 <DocumentTabBar

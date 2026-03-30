@@ -7,6 +7,7 @@ import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
 import { useLocaleStore, APP_LOCALES, type AppLocale } from "@/stores/localeStore";
 import { localeToTranslationKey } from "@/i18n/localeLabel";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 const DOCS_URL = "https://docs.etapsky.com";
 
@@ -56,6 +57,14 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function SettingsView() {
   const { t } = useTranslation();
   const { locale, setLocale } = useLocaleStore();
+  const { user, logout, isAuthenticated } = useAuth();
+  const apiHost = (() => {
+    try {
+      return new URL((import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || "https://api.etapsky.com").host;
+    } catch {
+      return "api.etapsky.com";
+    }
+  })();
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-[--color-bg]">
@@ -92,12 +101,33 @@ export function SettingsView() {
           </Section>
 
           <Section title={t("settings.account")}>
-            <SettingRow label={t("settings.signedInAs")} description={t("settings.signedInOrg")}>
-              <span className="text-sm text-[--color-muted]">yunus@etapsky.com</span>
+            <SettingRow
+              label={t("settings.signedInAs")}
+              description={user?.tenantId || t("settings.signedInOrg")}
+            >
+              <span className="text-sm text-[--color-muted]">
+                {user?.email || "—"}
+              </span>
             </SettingRow>
             <SettingRow label={t("settings.apiServer")}>
-              <span className="text-xs font-mono text-[--color-muted]">api.etapsky.com</span>
+              <span className="text-xs font-mono text-[--color-muted]">{apiHost}</span>
             </SettingRow>
+            <SettingRow label={t("auth.session")}>
+              <Badge variant={isAuthenticated ? "success" : "secondary"}>
+                {isAuthenticated ? t("auth.signedIn") : t("auth.signedOut")}
+              </Badge>
+            </SettingRow>
+            {isAuthenticated && (
+              <SettingRow label={t("auth.signOut")}>
+                <button
+                  type="button"
+                  onClick={() => void logout()}
+                  className="text-xs text-[--color-danger] hover:underline cursor-pointer"
+                >
+                  {t("auth.signOut")}
+                </button>
+              </SettingRow>
+            )}
           </Section>
 
           <Section title={t("settings.application")}>

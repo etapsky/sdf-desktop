@@ -53,6 +53,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_http::init())
         .manage(AppState::default())
         .setup(|app| {
             // Seed pending paths from argv (terminal launch with a .sdf argument).
@@ -77,6 +78,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::fs::read_sdf_file,
             commands::fs::get_file_metadata,
+            commands::keychain::keychain_set_refresh_token,
+            commands::keychain::keychain_get_refresh_token,
+            commands::keychain::keychain_delete_refresh_token,
             commands::open::get_launch_sdf_paths,
             commands::sign::sign_sdf_document,
             commands::validator::validate_sdf_signature,

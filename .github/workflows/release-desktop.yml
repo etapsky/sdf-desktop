@@ -33,6 +33,9 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
       - uses: dtolnay/rust-toolchain@stable
       - run: pnpm install --frozen-lockfile
+      - name: Generate bundle icons (ICO / ICNS / PNG)
+        shell: bash
+        run: pnpm icons
       - name: Import Apple signing (add your own steps here)
         run: echo "Configure APPLE_* secrets and codesign steps for production notarization."
       - name: Build
@@ -64,6 +67,9 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
       - uses: dtolnay/rust-toolchain@stable
       - run: pnpm install --frozen-lockfile
+      - name: Generate bundle icons (ICO required for WiX / MSI)
+        shell: bash
+        run: pnpm icons
       - name: Build
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}

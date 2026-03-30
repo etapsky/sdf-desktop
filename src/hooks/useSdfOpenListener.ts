@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { getLaunchSdfPaths } from "@/lib/tauri/open";
 
 type SdfOpenPayload = { paths: string[] };
 
@@ -14,7 +14,7 @@ export function useSdfOpenListener(onOpenPath: (path: string) => void) {
 
     void (async () => {
       try {
-        const paths = await invoke<string[]>("get_launch_sdf_paths");
+        const paths = await getLaunchSdfPaths();
         const first = paths[0];
         if (first) onOpenPath(first);
       } catch {

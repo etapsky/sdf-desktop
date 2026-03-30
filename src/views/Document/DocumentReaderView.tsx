@@ -1,6 +1,5 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { useTranslation } from "react-i18next";
@@ -19,6 +18,7 @@ import { DataTree } from "@/components/reader/DataTree";
 import { MetaCard } from "@/components/reader/MetaCard";
 import { ReaderSchemaPanel } from "@/components/reader/ReaderSchemaPanel";
 import { ReaderRawPanel } from "@/components/reader/ReaderRawPanel";
+import { readSdfFile } from "@/lib/tauri/fs";
 
 type LoadState =
   | { status: "loading" }
@@ -228,8 +228,7 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
 
     void (async () => {
       try {
-        const bytes = await invoke<number[]>("read_sdf_file", { path });
-        const u8 = new Uint8Array(bytes);
+        const u8 = await readSdfFile(path);
 
         if (isPlainPdf(path)) {
           // Plain PDF — display as-is, no parsing

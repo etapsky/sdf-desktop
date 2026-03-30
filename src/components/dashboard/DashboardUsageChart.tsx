@@ -21,16 +21,16 @@ const billingApi = createBillingEndpoints(API_BASE_URL, getApiClientTokens());
 
 const USAGE_SERIES_DAYS = 30;
 
-/** Chart area height scales with viewport; parent must have explicit height for ResponsiveContainer. */
+/** Compact plot height; small axis ticks keep labels from dominating. */
 const chartWrapClass =
-  "h-[clamp(12rem,28vw,20rem)] w-full min-h-[200px] max-h-[320px] sm:min-h-[220px]";
+  "h-[clamp(9rem,22vw,13rem)] w-full min-h-[148px] max-h-[200px] sm:min-h-[156px]";
 
 export function DashboardUsageChart() {
   const { t, i18n } = useTranslation();
   const { isAuthenticated } = useAuth();
   /** Colons in React useId() can break SVG fragment refs in some engines. */
   const uid = useId().replace(/:/g, "");
-  const gCalls = `${uid}-usage-calls`;
+  const gStorage = `${uid}-usage-storage`;
   const gDocs = `${uid}-usage-docs`;
 
   const query = useQuery({
@@ -43,7 +43,7 @@ export function DashboardUsageChart() {
     return (query.data ?? []).map((d) => ({
       date: new Date(d.date).toLocaleDateString(i18n.language, { month: "short", day: "numeric" }),
       documents: d.documents,
-      apiCalls: d.apiCalls,
+      storageGb: d.storageGb,
     }));
   }, [query.data, i18n.language]);
 
@@ -87,13 +87,15 @@ export function DashboardUsageChart() {
   }
 
   return (
-    <div className="rounded-xl border border-[--color-border] bg-[--color-surface] p-4 shadow-[--shadow-sm]">
-      <h3 className="mb-3 text-sm font-semibold text-[--color-fg]">{t("dashboard.usageChartTitle")}</h3>
+    <div className="rounded-xl border border-[--color-border] bg-[--color-surface] px-3 pb-2 pt-2 shadow-[--shadow-sm]">
+      <h3 className="mb-1 text-xs font-semibold leading-tight text-[--color-fg]">
+        {t("dashboard.usageChartTitle")}
+      </h3>
       <div className={chartWrapClass}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -16 }}>
+          <AreaChart data={chartData} margin={{ top: 2, right: 6, bottom: 0, left: -18 }}>
             <defs>
-              <linearGradient id={gCalls} x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={gStorage} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.22} />
                 <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
               </linearGradient>
@@ -105,35 +107,76 @@ export function DashboardUsageChart() {
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 11, fill: "var(--color-muted-fg)" }}
+              tick={{ fontSize: 10, fill: "var(--color-muted-fg)" }}
+              tickMargin={2}
+              height={22}
               axisLine={false}
               tickLine={false}
             />
-            <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-fg)" }} axisLine={false} tickLine={false} />
+            <YAxis
+              yAxisId="left"
+              tick={{ fontSize: 10, fill: "var(--color-muted-fg)" }}
+              tickMargin={4}
+              width={36}
+              axisLine={false}
+              tickLine={false}
+              allowDecimals={false}
+              tickFormatter={(v: number) => String(Math.round(v))}
+              domain={[0, (max: number) => (max <= 0 ? 1 : Math.ceil(max * 1.12))]}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: 10, fill: "var(--color-muted-fg)" }}
+              tickMargin={4}
+              width={44}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v: number) => {
+                const n = Number(v);
+                if (!Number.isFinite(n)) return "";
+                if (n === 0) return "0";
+                if (n < 0.01) return n.toFixed(4);
+                if (n < 1) return n.toFixed(3);
+                return n.toFixed(2);
+              }}
+              domain={[0, (max: number) => (max <= 0 ? 0.0001 : max * 1.15)]}
+            />
             <Tooltip
               contentStyle={{
                 background: "var(--color-surface-elevated)",
                 border: "1px solid var(--color-border)",
-                borderRadius: "8px",
-                fontSize: "12px",
+                borderRadius: "6px",
+                fontSize: "11px",
+                lineHeight: "1.25",
+                padding: "6px 8px",
                 color: "var(--color-fg)",
+              }}
+              formatter={(value: number | string, name: string) => {
+                if (name === t("dashboard.usageSeriesStorageGb")) {
+                  const n = typeof value === "number" ? value : Number(value);
+                  return [`${Number.isFinite(n) ? n.toFixed(4) : value} GB`, name];
+                }
+                return [value, name];
               }}
             />
             <Area
-              type="monotone"
-              dataKey="apiCalls"
-              name={t("dashboard.usageSeriesApiCalls")}
-              stroke="var(--color-primary)"
-              fill={`url(#${gCalls})`}
-              strokeWidth={1.5}
-              dot={false}
-            />
-            <Area
+              yAxisId="left"
               type="monotone"
               dataKey="documents"
               name={t("dashboard.usageSeriesDocuments")}
               stroke="var(--color-accent)"
               fill={`url(#${gDocs})`}
+              strokeWidth={1.5}
+              dot={false}
+            />
+            <Area
+              yAxisId="right"
+              type="monotone"
+              dataKey="storageGb"
+              name={t("dashboard.usageSeriesStorageGb")}
+              stroke="var(--color-primary)"
+              fill={`url(#${gStorage})`}
               strokeWidth={1.5}
               dot={false}
             />

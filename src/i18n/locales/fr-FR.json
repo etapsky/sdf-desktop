@@ -93,6 +93,15 @@
     "unsigned": "Non signé",
     "invalid": "Invalide"
   },
+  "producer": {
+    "title": "Nouveau document",
+    "documentType": "Type de document",
+    "generateSave": "Générer et enregistrer",
+    "generating": "Génération…",
+    "generateError": "Échec de la génération",
+    "metaInfo": "Méta",
+    "sdfContents": "Contenu du fichier SDF"
+  },
   "greeting": {
     "morning": "Bonjour, {{name}}",
     "afternoon": "Bon après-midi, {{name}}",

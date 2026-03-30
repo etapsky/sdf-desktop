@@ -93,6 +93,15 @@
     "unsigned": "Unsigned",
     "invalid": "Invalid"
   },
+  "producer": {
+    "title": "New Document",
+    "documentType": "Document type",
+    "generateSave": "Generate & Save",
+    "generating": "Generating…",
+    "generateError": "Generation failed",
+    "metaInfo": "Meta",
+    "sdfContents": "SDF file contents"
+  },
   "greeting": {
     "morning": "Good morning, {{name}}",
     "afternoon": "Good afternoon, {{name}}",

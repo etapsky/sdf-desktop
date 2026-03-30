@@ -6,6 +6,7 @@ import { CommandPalette } from "@/components/command/CommandPalette";
 import { DashboardView } from "@/views/Dashboard/DashboardView";
 import { DocumentReaderView } from "@/views/Document/DocumentReaderView";
 import { SettingsView } from "@/views/Settings/SettingsView";
+import { ProducerView } from "@/views/Producer/ProducerView";
 import { useSdfOpenListener } from "@/hooks/useSdfOpenListener";
 import { useThemeStore } from "@/stores/themeStore";
 
@@ -44,6 +45,8 @@ export function AppShell() {
     switch (activeView) {
       case "settings":
         return <SettingsView />;
+      case "new":
+        return <ProducerView onClose={() => setActiveView("dashboard")} />;
       default:
         return (
           <DashboardView

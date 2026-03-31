@@ -99,6 +99,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           accessToken: poll.tokens.accessToken,
           user: poll.user,
         });
+        useDocumentStore.getState().resetForTenant(poll.user.tenantId);
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, 1500));

@@ -80,6 +80,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::fs::read_sdf_file,
             commands::fs::get_file_metadata,
+            commands::fs::write_temp_sdf_file,
             commands::keychain::keychain_set_refresh_token,
             commands::keychain::keychain_get_refresh_token,
             commands::keychain::keychain_delete_refresh_token,

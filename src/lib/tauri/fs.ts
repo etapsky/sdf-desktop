@@ -29,3 +29,10 @@ export async function getFileMetadata(path: string): Promise<FileMetadata> {
   };
 }
 
+export async function writeTempSdfFile(data: ArrayBuffer, filename: string): Promise<string> {
+  return invoke<string>("write_temp_sdf_file", {
+    data: Array.from(new Uint8Array(data)),
+    filename,
+  });
+}
+

@@ -7,14 +7,16 @@ import { useCloudSync } from "@/hooks/useCloudSync";
 import { useToast } from "@/components/notifications/ToastProvider";
 import { describeApiError } from "@/lib/api/client";
 import { saveSdfArrayBuffer } from "@/lib/tauri/dialog";
+import { writeTempSdfFile } from "@/lib/tauri/fs";
 import { formatBytes } from "@/lib/formatBytes";
 import sdfIcon from "@/assets/sdf_icon.svg";
 
 type CloudSyncViewProps = {
   onOpenLocalDocuments?: () => void;
+  onOpenSdfFile?: (path: string) => void;
 };
 
-export function CloudSyncView({ onOpenLocalDocuments }: CloudSyncViewProps) {
+export function CloudSyncView({ onOpenLocalDocuments, onOpenSdfFile }: CloudSyncViewProps) {
   const { t } = useTranslation();
   const { notify } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -45,13 +47,31 @@ export function CloudSyncView({ onOpenLocalDocuments }: CloudSyncViewProps) {
     async (id: string, filename: string) => {
       try {
         const buf = await downloadBytes(id);
-        await saveSdfArrayBuffer(buf, filename);
+        const savedPath = await saveSdfArrayBuffer(buf, filename);
+        if (!savedPath) return;
         notify({ variant: "success", title: t("cloud.downloadSuccess", { name: filename }) });
       } catch (e) {
         notify({ variant: "error", title: t("cloud.downloadFailed"), message: describeApiError(e) });
       }
     },
     [downloadBytes, notify, t]
+  );
+
+  const handleOpenCloudFile = useCallback(
+    async (id: string, filename: string) => {
+      try {
+        const buf = await downloadBytes(id);
+        const tempPath = await writeTempSdfFile(buf, filename);
+        if (tempPath && onOpenSdfFile) {
+          // Open directly in reader; no save dialog for view action.
+          if (onOpenLocalDocuments) onOpenLocalDocuments();
+          onOpenSdfFile(tempPath);
+        }
+      } catch (e) {
+        notify({ variant: "error", title: t("cloud.downloadFailed"), message: describeApiError(e) });
+      }
+    },
+    [downloadBytes, notify, onOpenLocalDocuments, onOpenSdfFile, t]
   );
 
   const handleDelete = useCallback(
@@ -179,9 +199,14 @@ export function CloudSyncView({ onOpenLocalDocuments }: CloudSyncViewProps) {
                   <td className="max-w-[min(320px,45vw)] px-3 py-2">
                     <div className="flex min-w-0 items-center gap-2.5">
                       <CloudFileGlyph filename={row.filename} />
-                      <span className="truncate font-medium text-[--color-fg]" title={row.filename}>
+                      <button
+                        type="button"
+                        className="truncate font-medium text-[--color-fg] underline decoration-[--color-border] underline-offset-3 transition-colors hover:text-[--color-primary]"
+                        title={row.filename}
+                        onClick={() => void handleOpenCloudFile(row.id, row.filename)}
+                      >
                         {row.filename}
-                      </span>
+                      </button>
                     </div>
                   </td>
                   <td className="px-3 py-2 text-[--color-muted-fg]">{formatBytes(row.size)}</td>

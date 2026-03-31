@@ -81,7 +81,12 @@ export function AppShell() {
       case "settings":
         return <SettingsView />;
       case "cloud":
-        return <CloudSyncView onOpenLocalDocuments={() => navigate("documents")} />;
+        return (
+          <CloudSyncView
+            onOpenLocalDocuments={() => navigate("documents")}
+            onOpenSdfFile={handleOpenSdfPath}
+          />
+        );
       case "documents":
         return (
           <DocumentsView onOpenSdfFile={handleOpenSdfPath} onNewDocument={() => navigate("new")} />

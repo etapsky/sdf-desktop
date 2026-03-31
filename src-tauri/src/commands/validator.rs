@@ -1,6 +1,5 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 use crate::error::AppError;
-
 #[derive(serde::Serialize)]
 pub struct SignatureValidation {
     pub status: String, // valid | invalid | unsigned

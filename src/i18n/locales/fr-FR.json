@@ -222,6 +222,7 @@
     "name": "Nom complet",
     "company": "Entreprise",
     "signIn": "Se connecter",
+    "signInMicrosoft": "Continuer avec Microsoft",
     "createAccount": "Cr\u00e9er un compte",
     "signOut": "Se d\u00e9connecter",
     "session": "Session",

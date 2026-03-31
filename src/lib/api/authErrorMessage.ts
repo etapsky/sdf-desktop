@@ -24,6 +24,8 @@ export function formatAuthError(t: TFunction, err: unknown): string {
         return t("auth.errors.planLimit");
       case "NETWORK":
         return t("auth.errors.network");
+      case "SSO_FAILED":
+        return err.message || t("auth.errors.generic");
       default:
         break;
     }
@@ -39,5 +41,8 @@ export function formatAuthError(t: TFunction, err: unknown): string {
     if (err.statusCode >= 400) return t("auth.errors.badRequest");
   }
 
+  if (err instanceof Error && err.message.trim()) {
+    return err.message;
+  }
   return t("auth.errors.generic");
 }

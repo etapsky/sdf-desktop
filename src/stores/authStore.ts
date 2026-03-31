@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Yunus YILDIZ — SPDX-License-Identifier: BUSL-1.1
 import { create } from "zustand";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { createAuthEndpoints, type AuthUser, type LoginInput, type RegisterInput } from "@/lib/api/endpoints/auth";
 import type { ApiClientTokens } from "@/lib/api/client";
 import { deleteRefreshToken, getRefreshToken, setRefreshToken } from "@/lib/tauri/keychain";
@@ -25,6 +26,7 @@ type AuthState = {
   init: () => Promise<void>;
   login: (input: LoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
+  loginWithMicrosoft: () => Promise<void>;
   refresh: () => Promise<string | null>;
   logout: () => Promise<void>;
   _setSignedOut: () => Promise<void>;
@@ -74,6 +76,30 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       accessToken: res.tokens.accessToken,
       user: res.user,
     });
+  },
+
+  async loginWithMicrosoft() {
+    const started = await authApi.startMicrosoftSso();
+    await openUrl(started.authorizationUrl);
+
+    const deadline = Date.now() + started.expiresIn * 1000;
+    while (Date.now() < deadline) {
+      const poll = await authApi.pollMicrosoftSso(started.flowId, started.pollToken);
+      if (poll.status === "failed") {
+        throw new Error(poll.error);
+      }
+      if (poll.status === "completed") {
+        await setRefreshToken(poll.tokens.refreshToken);
+        set({
+          status: "signed_in",
+          accessToken: poll.tokens.accessToken,
+          user: poll.user,
+        });
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+    throw new Error("Microsoft sign-in timed out. Please try again.");
   },
 
   async refresh() {

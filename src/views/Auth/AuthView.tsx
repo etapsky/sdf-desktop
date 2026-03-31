@@ -33,7 +33,7 @@ function Field({
 
 export function AuthView() {
   const { t } = useTranslation();
-  const { login, register } = useAuth();
+  const { login, register, loginWithMicrosoft } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -75,6 +75,18 @@ export function AuthView() {
       setBusy(false);
     }
   });
+
+  const onMicrosoftSignIn = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await loginWithMicrosoft();
+    } catch (e) {
+      setError(formatAuthError(t, e));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="relative flex h-full min-h-0 items-center justify-center overflow-hidden bg-[--color-bg] px-4 py-8">
@@ -185,6 +197,20 @@ export function AuthView() {
             >
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
               {t("auth.signIn")}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void onMicrosoftSignIn()}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "w-full gap-2 text-sm font-semibold",
+                "border-[--color-border] bg-[--color-surface-elevated] text-[--color-fg] hover:bg-[--color-bg]",
+                "disabled:pointer-events-none disabled:opacity-40"
+              )}
+            >
+              {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+              {t("auth.signInMicrosoft")}
             </button>
           </form>
         ) : (

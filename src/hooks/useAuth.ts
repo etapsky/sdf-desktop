@@ -8,6 +8,7 @@ export function useAuth() {
   const init = useAuthStore((s) => s.init);
   const login = useAuthStore((s) => s.login);
   const register = useAuthStore((s) => s.register);
+  const loginWithMicrosoft = useAuthStore((s) => s.loginWithMicrosoft);
   const logout = useAuthStore((s) => s.logout);
   const refresh = useAuthStore((s) => s.refresh);
 
@@ -20,9 +21,10 @@ export function useAuth() {
       init,
       login,
       register,
+      loginWithMicrosoft,
       logout,
       refresh,
     }),
-    [status, user, init, login, register, logout, refresh]
+    [status, user, init, login, register, loginWithMicrosoft, logout, refresh]
   );
 }

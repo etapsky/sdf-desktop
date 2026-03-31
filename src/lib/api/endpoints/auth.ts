@@ -5,7 +5,8 @@ import { createApiClient, type ApiClientTokens } from "@/lib/api/client";
 const UserSchema = z.object({
   id: z.string(),
   tenantId: z.string(),
-  email: z.string().email(),
+  // SSO identities (e.g. Azure B2B guests) may return non-RFC mailbox principal strings.
+  email: z.string().min(1),
   name: z.string().nullable().optional().transform((v) => v ?? ""),
   role: z.string(),
   permissions: z.array(z.string()).optional().default([]),
@@ -26,6 +27,29 @@ const AuthResponseSchema = z.object({
 const MeResponseSchema = z.object({
   user: UserSchema,
 });
+
+const SsoStartResponseSchema = z.object({
+  flowId: z.string().uuid(),
+  pollToken: z.string().min(8),
+  authorizationUrl: z.string().url(),
+  expiresIn: z.number().int().positive(),
+});
+
+const SsoPollResponseSchema = z.discriminatedUnion("status", [
+  z.object({
+    status: z.literal("pending"),
+    expiresIn: z.number().int().nonnegative(),
+  }),
+  z.object({
+    status: z.literal("failed"),
+    error: z.string().min(1),
+  }),
+  z.object({
+    status: z.literal("completed"),
+    tokens: TokensSchema,
+    user: UserSchema,
+  }),
+]);
 
 export const LoginInputSchema = z.object({
   email: z.string().email(),
@@ -68,6 +92,16 @@ export function createAuthEndpoints(baseUrl: string, tokens: ApiClientTokens) {
     },
     async logout(refreshToken: string | null) {
       await client.post("/v1/auth/logout", refreshToken ? { refreshToken } : undefined);
+    },
+    async startMicrosoftSso() {
+      const raw = await client.get<unknown>("/v1/auth/microsoft/start");
+      return SsoStartResponseSchema.parse(raw);
+    },
+    async pollMicrosoftSso(flowId: string, pollToken: string) {
+      const raw = await client.get<unknown>(
+        `/v1/auth/microsoft/poll?flowId=${encodeURIComponent(flowId)}&pollToken=${encodeURIComponent(pollToken)}`
+      );
+      return SsoPollResponseSchema.parse(raw);
     },
   };
 }

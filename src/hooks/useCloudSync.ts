@@ -13,7 +13,7 @@ const PAGE = 1;
 const PER_PAGE = 50;
 
 export function useCloudSync() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const queryClient = useQueryClient();
 
   const documentsQuery = useQuery({
@@ -23,7 +23,7 @@ export function useCloudSync() {
   });
 
   const usageQuery = useQuery({
-    queryKey: queryKeys.billing.usage(),
+    queryKey: queryKeys.billing.usage(user?.tenantId),
     queryFn: () => billingApi.usage(),
     enabled: isAuthenticated,
   });

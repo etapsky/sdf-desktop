@@ -113,7 +113,7 @@ export function DashboardView({
   const recentFiles = useDocumentStore((s) => s.recentFiles);
 
   const usageQuery = useQuery({
-    queryKey: queryKeys.billing.usage(),
+    queryKey: queryKeys.billing.usage(user?.tenantId),
     queryFn: () => billingApi.usage(),
     enabled: isAuthenticated,
   });

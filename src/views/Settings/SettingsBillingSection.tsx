@@ -60,7 +60,7 @@ async function openBillingPortal() {
 
 export function SettingsBillingSection() {
   const { t, i18n } = useTranslation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const planQuery = useQuery({
     queryKey: queryKeys.billing.plan(),
@@ -75,7 +75,7 @@ export function SettingsBillingSection() {
   });
 
   const usageQuery = useQuery({
-    queryKey: queryKeys.billing.usage(),
+    queryKey: queryKeys.billing.usage(user?.tenantId),
     queryFn: () => billingApi.usage(),
     enabled: isAuthenticated,
   });

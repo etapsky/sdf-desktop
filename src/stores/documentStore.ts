@@ -12,6 +12,8 @@ export type RecentFileEntry = {
 };
 
 interface DocumentStore {
+  /** Hangi tenant için bu view geçerli (null = signed-out / local-only). */
+  tenantId: string | null;
   /** Açık sekme sırası (sol → sağ), benzersiz path */
   openTabs: string[];
   /** Reader’da görünen dosya; `null` = dashboard / diğer görünümler */
@@ -26,6 +28,8 @@ interface DocumentStore {
   closeTab: (path: string) => void;
   /** Sidebar / dashboard’a dön; sekmeleri açık tutar */
   leaveReader: () => void;
+  /** Auth değiştiğinde tenant’a göre tüm workspace state’ini sıfırla. */
+  resetForTenant: (tenantId: string | null) => void;
 }
 
 function pushRecent(prev: RecentFileEntry[], path: string): RecentFileEntry[] {
@@ -47,6 +51,7 @@ function pickActiveAfterClose(activePath: string | null, openTabs: string[], clo
 export const useDocumentStore = create<DocumentStore>()(
   persist(
     (set, get) => ({
+      tenantId: null,
       openTabs: [],
       activePath: null,
       recentFiles: [],
@@ -81,10 +86,21 @@ export const useDocumentStore = create<DocumentStore>()(
       },
 
       leaveReader: () => set({ activePath: null }),
+      resetForTenant: (tenantId) => {
+        const current = get().tenantId;
+        if (current === tenantId) return;
+        set({
+          tenantId,
+          openTabs: [],
+          activePath: null,
+          recentFiles: [],
+        });
+      },
     }),
     {
       name: "sdf-documents",
       partialize: (s) => ({
+        tenantId: s.tenantId,
         openTabs: s.openTabs,
         activePath: s.activePath,
         recentFiles: s.recentFiles,

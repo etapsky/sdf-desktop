@@ -4,6 +4,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { createAuthEndpoints, type AuthUser, type LoginInput, type RegisterInput } from "@/lib/api/endpoints/auth";
 import type { ApiClientTokens } from "@/lib/api/client";
 import { deleteRefreshToken, getRefreshToken, setRefreshToken } from "@/lib/tauri/keychain";
+import { useDocumentStore } from "@/stores/documentStore";
 
 export const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || "https://api.etapsky.com";
@@ -53,6 +54,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         accessToken: res.tokens.accessToken,
         user: res.user,
       });
+      useDocumentStore.getState().resetForTenant(res.user.tenantId);
     } catch {
       await get()._setSignedOut();
     }
@@ -66,6 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       accessToken: res.tokens.accessToken,
       user: res.user,
     });
+    useDocumentStore.getState().resetForTenant(res.user.tenantId);
   },
 
   async register(input) {
@@ -76,6 +79,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       accessToken: res.tokens.accessToken,
       user: res.user,
     });
+    useDocumentStore.getState().resetForTenant(res.user.tenantId);
   },
 
   async loginWithMicrosoft() {
@@ -113,6 +117,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         accessToken: res.tokens.accessToken,
         user: res.user,
       });
+      useDocumentStore.getState().resetForTenant(res.user.tenantId);
       return res.tokens.accessToken;
     } catch {
       await get()._setSignedOut();
@@ -133,5 +138,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       user: null,
       accessToken: null,
     });
+    useDocumentStore.getState().resetForTenant(null);
   },
 }));

@@ -4,6 +4,7 @@ use tauri::{Emitter, Manager};
 
 mod commands;
 mod error;
+mod sdf;
 
 #[cfg(target_os = "macos")]
 mod macos_fullscreen;
@@ -79,14 +80,28 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::fs::read_sdf_file,
+            commands::fs::write_sdf_file,
             commands::fs::get_file_metadata,
             commands::fs::write_temp_sdf_file,
             commands::keychain::keychain_set_refresh_token,
             commands::keychain::keychain_get_refresh_token,
             commands::keychain::keychain_delete_refresh_token,
+            commands::keychain::keychain_set_signing_private_key,
+            commands::keychain::keychain_get_signing_private_key,
+            commands::keychain::keychain_set_signing_public_key,
+            commands::keychain::keychain_get_signing_public_key,
+            commands::keychain::keychain_set_signing_algorithm,
+            commands::keychain::keychain_get_signing_algorithm,
+            commands::keychain::signing_keys_save,
+            commands::keychain::signing_keys_load,
             commands::open::get_launch_sdf_paths,
+            // ── Signing (Faz 3) ──────────────────────────────────────────────
             commands::sign::sign_sdf_document,
+            commands::sign::list_signing_certificates_cmd,
+            commands::sign::sign_sdf_with_certificate_cmd,
+            // ── Validation (Faz 3) ───────────────────────────────────────────
             commands::validator::validate_sdf_signature,
+            commands::validator::validate_sdf_full,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

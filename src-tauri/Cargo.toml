@@ -27,6 +27,26 @@ tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
 keyring = "3"
 
+# ── Cryptography & encoding ────────────────────────────────────────────────────
+sha2     = "0.10"
+hex      = "0.4"
+base64ct = { version = "1", features = ["alloc"] }
+zip      = "2"
+# X.509 certificate parsing (RustCrypto)
+x509-cert = "0.2"
+der       = { version = "0.7", features = ["alloc"] }
+# ECDSA P-256 signature verification
+p256      = { version = "0.13", features = ["ecdsa", "pkcs8"] }
+# RSA PKCS#1 v1.5 verification
+rsa       = { version = "0.9", features = ["sha2"] }
+signature = "2"
+# Async HTTP for RFC 3161 TSA requests
+reqwest   = { version = "0.12", features = ["rustls-tls"], default-features = false }
+# Random nonce for TSA
+rand      = "0.8"
+# Timestamp formatting
+chrono    = { version = "0.4", features = ["serde"] }
+
 [target.'cfg(target_os = "macos")'.dependencies]
 block2 = "0.6"
 objc2 = "0.6"
@@ -41,4 +61,14 @@ objc2-foundation = { version = "0.3", default-features = false, features = [
     "NSOperation",
     "NSString",
     "block2",
+] }
+# macOS Keychain / Security.framework for X.509 identity access
+security-framework = { version = "2", features = ["OSX_10_15"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+# Windows CertStore + NCrypt for X.509 identity access
+windows = { version = "0.58", features = [
+    "Win32_Security_Cryptography",
+    "Win32_Foundation",
+    "Win32_System_Memory",
 ] }

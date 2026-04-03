@@ -22,8 +22,9 @@ import { readSdfFile } from "@/lib/tauri/fs";
 import { openSdfOrPdf, savePdfAs, saveSdfAs } from "@/lib/tauri/dialog";
 import { useToast } from "@/components/notifications/ToastProvider";
 import { fileNameFromPath } from "@/lib/utils";
-import { validateSdfSignature, type SignatureStatus } from "@/lib/tauri/validator";
+import { validateSdfSignature, type SignatureValidation } from "@/lib/tauri/validator";
 import { SignSdfDialog } from "@/components/sign/SignSdfDialog";
+import { SignatureDetailPanel } from "@/components/reader/SignatureDetailPanel";
 
 type LoadState =
   | { status: "loading" }
@@ -31,8 +32,8 @@ type LoadState =
   | { status: "ready"; kind: "sdf"; result: SDFParseResult; fileLabel: string }
   | { status: "ready"; kind: "pdf"; fileLabel: string };
 
-type ReaderPanel = "data" | "info" | "schema" | "meta";
-type SignatureBadgeState = { status: SignatureStatus; reason?: string | null } | null;
+type ReaderPanel = "data" | "info" | "schema" | "meta" | "signature";
+type SignatureBadgeState = SignatureValidation | null;
 
 const PLAIN_PDF_META = {
   sdf_version: "—",
@@ -288,14 +289,17 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
   const panelTabs: { id: ReaderPanel; label: string }[] =
     state.status === "ready" && state.kind === "pdf"
       ? [
-          { id: "info", label: "info" },
-          { id: "schema", label: "schema.json" },
-          { id: "meta", label: "meta.json" },
+          { id: "info",      label: "info" },
+          { id: "schema",    label: "schema.json" },
+          { id: "meta",      label: "meta.json" },
         ]
       : [
-          { id: "data", label: "data.json" },
-          { id: "schema", label: "schema.json" },
-          { id: "meta", label: "meta.json" },
+          { id: "data",      label: "data.json" },
+          { id: "schema",    label: "schema.json" },
+          { id: "meta",      label: "meta.json" },
+          ...(signature && signature.status !== "unsigned"
+            ? [{ id: "signature" as const, label: "signature.sig" }]
+            : []),
         ];
 
   const headerBadge =
@@ -338,11 +342,14 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
               </span>
             )}
             {signatureBadgeLabel && (
-              <span
-                className={`shrink-0 rounded-md border bg-[--color-surface-elevated] px-2 py-0.5 text-[10px] font-medium ${signatureBadgeClass}`}
+              <button
+                type="button"
+                title={t("document.signatureClickToView")}
+                className={`shrink-0 rounded-md border bg-[--color-surface-elevated] px-2 py-0.5 text-[10px] font-medium cursor-pointer hover:opacity-80 transition-opacity ${signatureBadgeClass}`}
+                onClick={() => setPanel("signature")}
               >
                 {signatureBadgeLabel}
-              </span>
+              </button>
             )}
             <div className="ml-auto flex shrink-0 items-center gap-2">
               <Button
@@ -506,6 +513,9 @@ export function DocumentReaderView({ path, onClose, onOpenFile }: DocumentReader
                     data={state.result.meta as unknown as Record<string, unknown>}
                     label="meta.json"
                   />
+                )}
+                {panel === "signature" && state.kind === "sdf" && signature && (
+                  <SignatureDetailPanel validation={signature} />
                 )}
 
                 {/* ── Plain PDF panels ── */}

@@ -22,6 +22,13 @@ pub async fn get_file_metadata(path: String) -> Result<serde_json::Value, AppErr
     }))
 }
 
+/// Write bytes to an absolute path in-place — used by the signing pipeline
+/// to overwrite an existing SDF file with its signed version.
+#[tauri::command]
+pub async fn write_sdf_file(path: String, data: Vec<u8>) -> Result<(), AppError> {
+    std::fs::write(&path, data).map_err(|e| AppError::Io(format!("write_sdf_file: {e}")))
+}
+
 #[tauri::command]
 pub async fn write_temp_sdf_file(data: Vec<u8>, filename: String) -> Result<String, AppError> {
     let clean_name = filename

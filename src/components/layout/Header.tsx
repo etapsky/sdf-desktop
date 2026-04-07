@@ -5,7 +5,8 @@ import { listen } from "@tauri-apps/api/event";
 import { Search, Sidebar, SidebarOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useThemeStore } from "@/stores/themeStore";
-import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
+import etapskyLogoLight from "@/assets/etapsky_horizontal_logo.svg";
+import etapskyLogoDark from "@/assets/etapsky_horizontal_logo_on_dark.svg";
 import { CloudConnectivityBadge } from "@/components/layout/CloudConnectivityBadge";
 
 /** Must match `trafficLightPosition` / overlay titlebar inset in tauri.conf (macOS). */
@@ -35,7 +36,6 @@ function isMacOs(): boolean {
 export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: HeaderProps) {
   const { t } = useTranslation();
   const { resolved } = useThemeStore();
-  const logoFilter = resolved === "dark" ? "brightness(0) invert(1)" : "none";
   const headerRef = useRef<HTMLElement>(null);
 
   const [trafficStripPx, setTrafficStripPx] = useState(() => (isMacOs() ? MACOS_TRAFFIC_STRIP_PX : 0));
@@ -176,14 +176,13 @@ export function Header({ sidebarOpen, onToggleSidebar, onOpenCommandPalette }: H
       <div data-tauri-drag-region className="flex shrink-0 items-center gap-2">
         <CloudConnectivityBadge />
         <img
-          src={etapskyLogo}
+          src={resolved === "dark" ? etapskyLogoDark : etapskyLogoLight}
           alt="Etapsky"
           style={{
             height: 20,
             width: "auto",
             maxWidth: 200,
             opacity: 0.88,
-            filter: logoFilter,
             pointerEvents: "none",
             userSelect: "none",
           }}

@@ -4,7 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { AlertCircle, Eye, EyeOff, Loader2, Lock, LogIn, Mail, ShieldCheck, User, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
+import etapskyLogoLight from "@/assets/etapsky_horizontal_logo.svg";
+import etapskyLogoDark from "@/assets/etapsky_horizontal_logo_on_dark.svg";
+import { useThemeStore } from "@/stores/themeStore";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,6 +35,7 @@ function Field({
 
 export function AuthView() {
   const { t } = useTranslation();
+  const { resolved } = useThemeStore();
   const { login, register, loginWithMicrosoft } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +105,11 @@ export function AuthView() {
             <h1 className="truncate text-lg font-semibold text-[--color-fg]">{t("auth.title")}</h1>
             <p className="text-xs text-[--color-muted]">{t("auth.subtitle")}</p>
           </div>
-          <img src={etapskyLogo} alt="Etapsky" className="ml-auto h-5 opacity-75" />
+          <img
+            src={resolved === "dark" ? etapskyLogoDark : etapskyLogoLight}
+            alt="Etapsky"
+            className="ml-auto h-5 opacity-75"
+          />
         </div>
 
         <div className="mb-4 flex gap-1.5 rounded-xl border border-[--color-border] bg-[color-mix(in_oklch,var(--color-surface-elevated)_70%,var(--color-bg))] p-1">

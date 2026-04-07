@@ -13,7 +13,7 @@ import {
   Monitor,
   ChevronDown,
 } from "lucide-react";
-import fennecFox from "@/assets/fennec-fox.svg";
+import etapskyMark from "@/assets/etapsky_mark.svg";
 import { useAuth } from "@/hooks/useAuth";
 
 interface NavItemProps {
@@ -123,9 +123,7 @@ export function Sidebar({
   onNavigate,
 }: SidebarProps) {
   const { t } = useTranslation();
-  const { resolved } = useThemeStore();
   const { user } = useAuth();
-  const avatarImgFilter = resolved === "dark" ? "brightness(0) invert(1)" : "none";
   const nav = (view: string) => () => onNavigate?.(view);
 
   const displayName = user?.name?.trim() || user?.email || "Guest";
@@ -248,13 +246,12 @@ export function Sidebar({
             }}
           >
             <img
-              src={fennecFox}
-              alt="avatar"
+              src={etapskyMark}
+              alt="Etapsky"
               style={{
                 width: 22,
                 height: 22,
                 objectFit: "contain",
-                filter: avatarImgFilter,
               }}
             />
           </div>

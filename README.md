@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./src/assets/etapsky_horizonral_logo.svg" width="320" alt="Etapsky" />
+<img src="./src/assets/etapsky_horizontal_logo.svg" width="320" alt="Etapsky" />
 
 <p align="center" style="margin: 1rem 0 0; font-size: 1.4rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.35;">
   <img src="./src/assets/sdf_icon.svg" width="44" height="44" alt="SDF" style="vertical-align: middle; margin-right: 10px;" />
@@ -152,7 +152,7 @@ src-tauri/        # Rust: commands, keychain, validator, bundle config
 
 | Asset | Role |
 |--------|------|
-| [`assets/fennec-fox-app-icon.svg`](assets/fennec-fox-app-icon.svg) | **Application** icon → `pnpm icons` → `src-tauri/icons/*` |
+| [`assets/fennec-fox-app-icon.svg`](assets/fennec-fox-app-icon.svg) | **Application** icon → `pnpm icons` → `src-tauri/icons/*` (regenerate from [`etapsky_mark.svg`](src/assets/etapsky_mark.svg) when refreshing Dock/taskbar icons) |
 | [`src/assets/sdf_icon.svg`](src/assets/sdf_icon.svg) (also `assets/sdf_icon.svg`) | **`.sdf` document** type → `SDFDocument.icns` / `SDFDocument.ico` via `tauri.conf.json` `bundle.resources` |
 
 Regenerate from SVG after brand tweaks:

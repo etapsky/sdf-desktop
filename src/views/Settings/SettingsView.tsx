@@ -6,7 +6,9 @@ import { Loader2 } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Settings } from "lucide-react";
-import etapskyLogo from "@/assets/etapsky_horizonral_logo.svg";
+import etapskyLogoLight from "@/assets/etapsky_horizontal_logo.svg";
+import etapskyLogoDark from "@/assets/etapsky_horizontal_logo_on_dark.svg";
+import { useThemeStore } from "@/stores/themeStore";
 import { useLocaleStore, APP_LOCALES, type AppLocale } from "@/stores/localeStore";
 import { localeToTranslationKey } from "@/i18n/localeLabel";
 import { cn } from "@/lib/utils";
@@ -62,6 +64,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function SettingsView() {
   const { t } = useTranslation();
+  const { resolved } = useThemeStore();
   const { locale, setLocale } = useLocaleStore();
   const { user, logout, isAuthenticated } = useAuth();
   const { checkForUpdatesManual, checkingManual } = useUpdater();
@@ -200,7 +203,11 @@ export function SettingsView() {
           </Section>
 
           <div className="flex items-center justify-center pt-4 pb-2">
-            <img src={etapskyLogo} alt="Etapsky" className="h-5 opacity-30" />
+            <img
+              src={resolved === "dark" ? etapskyLogoDark : etapskyLogoLight}
+              alt="Etapsky"
+              className="h-5 opacity-30"
+            />
           </div>
         </div>
       </div>

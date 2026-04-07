@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import etapskyLogoLight from "@/assets/etapsky_horizontal_logo.svg";
 import etapskyLogoDark from "@/assets/etapsky_horizontal_logo_on_dark.svg";
 import { useThemeStore } from "@/stores/themeStore";
+import { MicrosoftLogo } from "@/components/auth/MicrosoftLogo";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -96,7 +97,14 @@ export function AuthView() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1100px_480px_at_75%_-10%,color-mix(in_oklch,var(--color-primary)_26%,transparent),transparent_70%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(980px_420px_at_15%_120%,color-mix(in_oklch,var(--color-accent)_18%,transparent),transparent_70%)]" />
 
-      <section className="relative z-10 w-full max-w-md rounded-2xl border border-[--color-border] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-lg)]">
+      <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-6">
+        <img
+          src={resolved === "dark" ? etapskyLogoDark : etapskyLogoLight}
+          alt="Etapsky"
+          className="h-14 w-auto max-w-[min(100%,20rem)] object-contain object-center sm:h-16"
+        />
+
+        <section className="w-full rounded-2xl border border-[--color-border] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-lg)]">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[--color-border-subtle] bg-[--color-surface-elevated]">
             <ShieldCheck className="h-5 w-5 text-[--color-primary]" />
@@ -105,11 +113,6 @@ export function AuthView() {
             <h1 className="truncate text-lg font-semibold text-[--color-fg]">{t("auth.title")}</h1>
             <p className="text-xs text-[--color-muted]">{t("auth.subtitle")}</p>
           </div>
-          <img
-            src={resolved === "dark" ? etapskyLogoDark : etapskyLogoLight}
-            alt="Etapsky"
-            className="ml-auto h-5 opacity-75"
-          />
         </div>
 
         <div className="mb-4 flex gap-1.5 rounded-xl border border-[--color-border] bg-[color-mix(in_oklch,var(--color-surface-elevated)_70%,var(--color-bg))] p-1">
@@ -211,12 +214,16 @@ export function AuthView() {
               onClick={() => void onMicrosoftSignIn()}
               className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }),
-                "w-full gap-2 text-sm font-semibold",
+                "w-full gap-2.5 text-sm font-semibold",
                 "border-[--color-border] bg-[--color-surface-elevated] text-[--color-fg] hover:bg-[--color-bg]",
                 "disabled:pointer-events-none disabled:opacity-40"
               )}
             >
-              {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+              {busy ? (
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+              ) : (
+                <MicrosoftLogo className="h-5 w-5 shrink-0" />
+              )}
               {t("auth.signInMicrosoft")}
             </button>
           </form>
@@ -287,7 +294,8 @@ export function AuthView() {
             </button>
           </form>
         )}
-      </section>
+        </section>
+      </div>
     </div>
   );
 }
